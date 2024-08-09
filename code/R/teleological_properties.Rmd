@@ -1,0 +1,1102 @@
+---
+title: "Teleological Properties"
+author: "Anonymous"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  bookdown::html_document2:
+    toc: true
+    toc_depth: 4
+    theme: cosmo
+    highlight: tango
+---
+
+# Load packages 
+
+```{r, message=F}
+library("xtable")         # for saving tables
+library("png")            # for reading in png files
+library("grid")           # for arranging plots
+library("ggtext")         # for formatting ggplot2 text
+library("emmeans")        # for comparing models
+library("knitr")          # for knitting  
+library("RSQLite")        # for reading in participants.db file 
+library("tidyjson")       # for reading in json data 
+library("entropy")        # for computing entropy
+library("brms")           # for Bayesian data analysis
+library("janitor")        # for cleaning variable names
+library("corrr")            # for correlations
+library("tidyverse")      # for everything else 
+```
+
+# Global options
+
+```{r}
+theme_set(theme_classic())
+
+opts_chunk$set(comment = "#>",
+               fig.show = "hold")
+
+options(dplyr.summarise.inform = F)
+
+# use contrast coding to interpret effects from categorical variables as main effects 
+options(contrasts = c("contr.sum","contr.poly"))
+```
+
+# EXPERIMENT 1 (Property Categorization)
+
+
+## Read in the data 
+
+```{r message=FALSE, warning=FALSE}
+
+con = dbConnect(SQLite(), dbname = "../../data/experiment1/experiment1.db")
+df.exp1.data = dbReadTable(con, "teleological_generics")
+dbDisconnect(con)
+
+```
+
+## Wrangle
+
+```{r}
+
+# filter out incompletes and debugs 
+df.exp1.data = df.exp1.data %>%
+  filter(status %in% 3:5, 
+         codeversion == "experiment1")
+         # !str_detect(mode, "debug"))
+         
+
+# demographic information 
+df.exp1.demographics = df.exp1.data$datastring %>% 
+  enter_object("questiondata") %>% 
+  gather_object("index") %>% 
+  append_values_string("value") %>% 
+  as_tibble() %>% 
+  rename(participant = document.id) %>% 
+  pivot_wider(names_from = index,
+              values_from = value) %>% 
+  mutate(time = difftime(df.exp1.data$endhit,
+                         df.exp1.data$beginhit,
+                         units = "mins"))
+
+# judgments 
+df.exp1.long = df.exp1.data$datastring %>% 
+  as.tbl_json() %>% 
+  enter_object("data") %>% 
+  gather_array("order") %>% 
+  enter_object("trialdata") %>% 
+  gather_object("index") %>% 
+  append_values_string("value") %>% 
+  as_tibble() %>% 
+  rename(participant = document.id) %>% 
+  pivot_wider(names_from = index,
+              values_from = value) %>% 
+  na.omit()
+
+
+# remove participants who didn't pass attention check items 
+# (who did not select either biological or purpose for attention check items 
+# "have bones" and "have DNA")
+df.exp1.long = df.exp1.long %>%
+  group_by(participant) %>% 
+  filter(!any(item == "have DNA" & response =="social" |
+              item == "have DNA" & response == "behavioral" |
+              item == "have bones" & response == "social" |
+              item == "have bones" & response == "behavioral")) %>%
+  ungroup() %>% 
+  filter(!(item %in% c("have bones", "have DNA")))
+
+
+                                  
+```
+
+## Demographics
+
+```{r message=FALSE, warning=FALSE}
+# missing values indicate those who missed the comprehension check
+unique(df.exp1.long$participant)
+
+
+df.exp1.demographics = df.exp1.demographics %>% 
+  # remove participants from demographics who failed the comprehension check
+  filter(!(participant %in% c("7", "17", "24", "31", "40", "53"))) %>% 
+  select(participant, age : ethnicity) %>% 
+  mutate(gender = str_to_lower(gender),
+         gender = str_replace(gender, "^m$", "male"),
+         race = str_to_lower(race))
+
+df.exp1.demographics %>% 
+  summarise(age_mean = mean(as.numeric(age), na.rm = TRUE))
+
+df.exp1.demographics %>% 
+  summarise(age_sd = sd(as.numeric(age), na.rm = TRUE))
+
+df.exp1.demographics %>% 
+  group_by(gender) %>% 
+  count() 
+
+df.exp1.demographics %>% 
+  group_by(race) %>% 
+  count() 
+
+df.exp1.demographics %>% 
+  group_by(ethnicity) %>% 
+  count() 
+
+```
+
+
+## Plots
+### Plot of the top four properties for each category 
+
+```{r fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+
+
+df.exp1.top_items = df.exp1.long %>% 
+  filter(!item == "pollinate flowers") %>% 
+  count(item, response) %>% 
+  arrange(response, desc(n)) %>% 
+  group_by(response) %>% 
+  slice_head(n = 4) %>% 
+  mutate(rank = n():1) %>% 
+  ungroup()
+
+df.plot = df.exp1.long %>% 
+  count(item, response) %>% 
+  left_join(df.exp1.top_items %>% 
+              mutate(type = response) %>% 
+              select(-c(n, response)),
+            by = c("item")) %>% 
+  na.omit() %>% 
+  mutate(type = factor(type,
+                           levels = c("behavior", "biology", "purpose", "social")))  %>% 
+  mutate(type = recode(type, 
+                       "behavior" = "Top behavioral properties", 
+                       "biology" = "Top biological properties", 
+                       "purpose" = "Top purposeful properties", 
+                       "social" = "Top social properties"))
+
+#give short labels to properties for plotting
+df.plot = df.plot %>% 
+  mutate(item = str_replace_all(item, "are warm blooded", "blood"),
+         item = str_replace_all(item, "have hair", "hair"),
+         item = str_replace_all(item, "have pointy ears", "ears"),
+         item = str_replace_all(item, "have long legs", "legs"),
+         item = str_replace_all(item, "enable decomposition", "decompose"),
+         item = str_replace_all(item, "purify water", "purify"),
+         item = str_replace_all(item, "make honey", "honey"),
+         item = str_replace_all(item, "aerate soil", "aerate"),
+         item = str_replace_all(item, "share food with group members", "share"),
+         item = str_replace_all(item, "cooperate with group members", "cooperate"),
+         item = str_replace_all(item, "follow the dominant group member", "follow"),
+         item = str_replace_all(item, "pair bond", "bond"))
+
+
+
+ggplot(data = df.plot,
+       mapping = aes(x = reorder(item, rank),
+                     y = n,
+                     fill = response)) +
+  geom_col(width = 0.75,
+           color = "black",
+           position = position_fill(reverse = TRUE)) +
+  scale_y_continuous(labels = c("0%", "25%", "50%", "75%", "100%")) +
+  coord_flip(expand = F) +
+  facet_wrap(~type,
+             ncol = 2,
+             scales = "free") + 
+  labs(title = element_blank(),
+       y = element_blank()) +
+  scale_fill_brewer(palette = "Set1") + 
+  theme(plot.title = element_text(hjust = 0.5,
+                                  size = 16,
+                                  face = "bold"),
+        text = element_text(size = 16),
+        strip.text = element_text(size = 16,
+                                  margin = margin(b = 0.3,
+                                                  t = 0.1,
+                                                  unit = "cm")),
+        strip.background = element_blank(),
+        axis.title.y = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        plot.margin = margin(t = 0.5,
+                             b = 0.2,
+                             l = 0.2,
+                             r = 1,
+                             unit = "cm"))
+
+ggsave(filename = "../../figures/experiment1/exp1_top_stacked.pdf",
+       height = 4,
+       width = 8)
+```
+
+
+# EXPERIMENT 2 (Transformation)
+## Read in the data 
+
+```{r message=FALSE, warning=FALSE}
+
+df.exp2 = read_csv("../../data/experiment2/experiment2.csv")
+
+```
+
+## Wrangle 
+
+```{r}
+
+# catgeorization judgment dataframe
+df.exp2.long = df.exp2 %>%
+  rename(condition = expCondition) %>%
+   mutate(participant = rep(1:100, each = 2)) %>% 
+  select(participant, comprehension_check, condition, response_behavioral: response_social) %>% 
+  pivot_longer(cols = response_behavioral:response_social,
+               names_to = "property",
+               values_to = "response") %>% 
+  mutate(property = str_remove_all(property, "response_"),
+          property = str_replace_all(property, "behavioral", "behavior"),
+          property = str_replace_all(property, "biological", "biology"),
+         response = recode(response, `0` = 1, `1` = 2, `2` = 3, `3` = 4, `4` = 5, `5` = 6, `6` = 7),
+         condition = recode(condition, "non_generic" = "specific"),
+         study = rep("transformation")) 
+
+
+```
+
+## Demographics
+
+```{r message=FALSE, warning=FALSE}
+# read in demographic data
+
+df.exp2.demographics = read_csv("../../data/experiment2/experiment2_demographics.csv")
+
+df.exp2.demographics %>% 
+  summarise(age_mean = mean(as.numeric(age), na.rm = TRUE))
+
+df.exp2.demographics %>% 
+  summarise(age_sd = sd(as.numeric(age), na.rm = TRUE))
+
+df.exp2.demographics %>% 
+  group_by(gender) %>% 
+  count() 
+
+df.exp2.demographics %>% 
+  group_by(race) %>% 
+  count() 
+
+df.exp2.demographics %>% 
+  group_by(ethnicity) %>% 
+  count() 
+
+
+```
+
+## Plots
+
+### Property Means by Condition
+
+```{r fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+
+# Read the image file
+midpoint_creature = readPNG("../../figures/plot_additions/midpoint_creature.png")
+
+
+# Create a raster object from the image
+raster_midpoint_creature = rasterGrob(midpoint_creature, interpolate=TRUE)
+
+ggplot(data = df.exp2.long,
+       mapping = aes(x = property,
+                     y = response,
+                     group = condition,
+                     color = property,
+                     fill = property,
+                     shape = condition)) + 
+  geom_hline(yintercept = 4, linetype = "dashed") +
+  geom_point(position = position_jitterdodge(dodge.width = 0.5,
+                                             jitter.width = 0.15,
+                                             jitter.height = 0.1),
+             alpha = 0.2) + 
+  theme(legend.position = "none") +
+  stat_summary(fun.data = "mean_cl_boot",
+               position = position_dodge(width = 0.55),
+               color = "black",
+               size = .9) + 
+  scale_fill_brewer(palette = "Set1") + 
+  scale_color_brewer(palette = "Set1") + 
+  scale_y_continuous(breaks = 1:7) +
+  scale_shape_manual(values = c(21, 23)) + 
+  ggtitle("What is this creature?") +
+  xlab("Property type that \n\ differed") +
+  theme(plot.title = element_text(size=24, hjust = .5),  
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        axis.title.x = element_blank(),
+        axis.text.x = element_text(size=16), 
+        axis.title.y = element_text(size=18),  
+        axis.text.y = element_text(size=14),  
+        legend.text = element_text(size=16)) + 
+  guides(fill = "none",
+         color = "none",
+         shape = guide_legend(override.aes = list(fill = "gray50"))) + 
+  coord_flip() +
+  annotation_custom(raster_midpoint_creature, xmin=4.35, xmax=5.3, ymin=-Inf, ymax=Inf) +
+  expand_limits(x = c(-Inf, 5.3)) +
+scale_y_continuous(breaks = 1:7,
+                   labels = c(
+    "1" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/left_creature.png' width='35' height='30'>",
+    "2" = "2",
+    "3" = "3",
+    "4" = "unsure",
+    "5" = "5",
+    "6" = "6",
+    "7" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/right_creature.png' width='35' height='30'>"
+  )) +
+  theme(axis.text.x = element_markdown())
+ 
+ggsave(width = 8, height = 5, "../../figures/experiment2/exp2_property_by_condition_means.pdf")
+
+```
+
+
+
+### Plot of Actual Property Ratings vs Expected Property Ratings
+
+```{r fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+
+# create dataframe to get proportion of properties that were categorized as expected 
+df.plot = df.exp2 %>%
+   mutate(participant = rep(1:100, each = 2)) %>% 
+          rename(condition = expCondition) %>% 
+  relocate(participant) %>% 
+   select(-c("item_0", "item_1", "error")) %>% 
+  pivot_longer(starts_with("item"),
+               names_to = "tmp",
+               values_to = "value") %>% 
+  separate(col = tmp, 
+           into = c("placeholder_a", "thing", "rank", "placeholder_b"),
+           sep = "_") %>% 
+  group_by(rank) %>%
+  mutate(row = row_number()) %>%
+  pivot_wider(names_from = rank,
+              values_from = value) %>% 
+  select(-c("workerid", "proliferate.condition", "placeholder_a", "placeholder_b", "row")) %>% 
+  mutate(thing = recode(thing, "0" = "first", "1" = "second")) %>% 
+         rename(item = property,
+                response = categorization) %>% 
+  mutate(item = str_replace_all(item, c("pair bonds" = "pair bond", "follows the dominant group member" = "follow the dominant group member", "cooperates with group members" = "cooperate with group members", "shares food with group members" = "share food with group members", "aerates soil" = "aerate soil", "makes honey" = "make honey", "purifies water" = "purify water", "enables decomposition" = "enable decomposition", "has pointy ears" = "have pointy ears", "has long legs" = "have long legs", "has hair" = "have hair", "is warm blooded" = "are warm blooded", "runs" = "run", "chews" = "chew", "swims" = "swim", "jumps" = "jump")),
+         expected = case_when(item %in% c("jump", "swim", "chew","run", "swallow", "fly", "smell", "salivate", "urinate", "digest slowly") ~ "behavior",
+                              item %in% c("are warm blooded", "have hair", "have long legs", "have pointy ears", "have sharp teeth", "have a tail", "have small nostrils", "have spots", "have claws", "have large eyes") ~ "biology",
+                              item %in% c("enable decomposition", "pollinate flowers", "purify water", "make honey", "aerate soil", "enable nitrogen fixation", "recycle nutrients in soil", "catch and kill insects", "produce oxygen", "eat animal carcasses") ~ "purpose",
+                              item %in% c("share food with group members", "cooperate with group members", "follow the dominant group member", "pair bond", "dance before mating", "are nomadic", "sing", "mark territory", "store resources", "build shelter") ~ "social")) %>% 
+  group_by(expected, response, item) %>% 
+  count(.drop = F)  %>% 
+  mutate(proportion = n/100) %>% 
+  mutate(response = str_replace_all(response, "behavioral", "behavior"),
+        response = str_replace_all(response, "biological", "biology")) %>% 
+  ungroup() %>% 
+  add_row(expected = "social", response = "purpose", item = "just for plotting", n = 0 , proportion = 0.00)
+
+ggplot(data = df.plot) +
+    geom_tile(aes(x = expected, 
+                    y = response, 
+                    fill = proportion,
+                    group = proportion),
+              color = "black") +
+scale_fill_gradient(low = "white", high = "black", limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
+  theme(legend.title = element_blank(),
+        text = element_text(size = 20)) +
+   xlab("Expected Categorization") +
+   ylab("Actual Categorization")
+
+ggsave(filename = "../../figures/experiment2/exp2_heat_map.pdf",
+       height = 5,
+       width = 8)
+
+```
+
+
+### Catgeorization Ratings for Each Individual Property
+
+```{r fig.height=6, fig.width=10, message=FALSE, warning=FALSE}
+
+# property categorization and categorization judgment dataframe
+df.exp2.property_categorization = df.exp2 %>%
+   mutate(participant = rep(1:100, each = 2)) %>% 
+          rename(condition = expCondition) %>% 
+  relocate(participant) %>% 
+   select(-c("item_0", "item_1", "error")) %>% 
+  pivot_longer(starts_with("item"),
+               names_to = "tmp",
+               values_to = "value") %>% 
+  separate(col = tmp, 
+           into = c("placeholder_a", "thing", "rank", "placeholder_b"),
+           sep = "_") %>% 
+  group_by(rank) %>%
+  mutate(row = row_number()) %>%
+  pivot_wider(names_from = rank,
+              values_from = value) %>% 
+   mutate(thing = recode(thing, "0" = "first", "1" = "second"),
+          pair = rep(c("first", "second"), each = 8, times = 100)) %>%
+   select(-c("workerid", "proliferate.condition", "placeholder_a", "placeholder_b", "row")) %>% 
+   pivot_longer(cols = response_behavioral:response_social,
+               names_to = "property_changed",
+               values_to = "response") %>% 
+  mutate(property_changed = str_remove_all(property_changed, "response_"),
+         response = recode(response, `0` = 1, `1` = 2, `2` = 3, `3` = 4, `4` = 5, `5` = 6, `6` = 7),
+         condition = recode(condition, "non_generic" = "specific")) %>% 
+  rename(property_selected = property) %>% 
+  mutate(property = recode(thing, "first" = "original", "second" = "new")) %>% 
+  select(-thing) %>% 
+  relocate(response, .after = last_col()) %>% 
+   mutate(property_selected = str_replace_all(property_selected, c("pair bonds" = "pair bond", "follows the dominant group member" = "follow the dominant group member", "cooperates with group members" = "cooperate with group members", "shares food with group members" = "share food with group members", "aerates soil" = "aerate soil", "makes honey" = "make honey", "purifies water" = "purify water", "enables decomposition" = "enable decomposition", "has pointy ears" = "have pointy ears", "has long legs" = "have long legs", "has hair" = "have hair", "is warm blooded" = "are warm blooded", "runs" = "run", "chews" = "chew", "swims" = "swim", "jumps" = "jump")))
+
+  
+df.exp2.bio = df.exp2.property_categorization %>% 
+  filter(property_changed == "biological" & categorization == "biological")
+
+df.exp2.behavior = df.exp2.property_categorization %>% 
+  filter(property_changed == "behavioral" & categorization == "behavioral")
+
+df.exp2.social = df.exp2.property_categorization %>% 
+  filter(property_changed == "social" & categorization == "social")
+
+df.exp2.purpose = df.exp2.property_categorization %>% 
+  filter(property_changed == "purpose" & categorization == "purpose")
+
+df.exp2.property_categorization = df.exp2.behavior %>% 
+  bind_rows(df.exp2.bio, 
+            df.exp2.purpose,
+            df.exp2.social)
+
+df.each_property = df.exp2.property_categorization %>% 
+  filter(categorization == "behavioral" & property_selected %in% c("jump", "chew", "swim", "run") | categorization == "biological" & property_selected %in% c("have hair", "have long legs", "are warm blooded", "have pointy ears") | categorization == "purpose" & property_selected %in% c("purify water", "aerate soil", "enable decomposition", "make honey") | categorization == "social" & property_selected %in% c("pair bond", "share food with group members", "follow the dominant group member", "cooperate with group members"))
+
+#give short labels to properties for plotting
+df.each_property = df.each_property %>% 
+  mutate(property_selected = str_replace_all(property_selected, "are warm blooded", "blood"),
+         property_selected = str_replace_all(property_selected, "have hair", "hair"),
+         property_selected = str_replace_all(property_selected, "have pointy ears", "ears"),
+         property_selected = str_replace_all(property_selected, "have long legs", "legs"),
+         property_selected = str_replace_all(property_selected, "enable decomposition", "decompose"),
+         property_selected = str_replace_all(property_selected, "purify water", "purify"),
+         property_selected = str_replace_all(property_selected, "make honey", "honey"),
+         property_selected = str_replace_all(property_selected, "aerate soil", "aerate"),
+         property_selected = str_replace_all(property_selected, "share food with group members", "share"),
+         property_selected = str_replace_all(property_selected, "cooperate with group members", "cooperate"),
+         property_selected = str_replace_all(property_selected, "follow the dominant group member", "follow"),
+         property_selected = str_replace_all(property_selected, "pair bond", "bond"))
+
+# rename property types
+df.each_property = df.each_property %>% 
+  mutate(property_changed = str_replace_all(property_changed, "behavioral", "behavior"),
+         property_changed = str_replace_all(property_changed, "biological", "biology"))
+
+
+ggplot(data = df.each_property,
+       mapping = aes(x = property_selected,
+                     y = response,
+                     group = property_changed,
+                     color = property_changed,
+                     fill = property_changed)) + 
+  geom_point(position = position_jitterdodge(dodge.width = 0.5,
+                                             jitter.width = 0.3,
+                                             jitter.height = 0.1),
+             alpha = 0.1) + 
+  stat_summary(fun.data = "mean_cl_boot",
+               position = position_dodge(width = 0.5),
+               shape = 21,
+               color = "black",
+               size = .9) + 
+  scale_fill_brewer(palette = "Set1") + 
+  scale_color_brewer(palette = "Set1") + 
+ scale_y_continuous(breaks = 1:7) +
+  theme(plot.title = element_text(hjust = 0.5,
+                                  size = 18,
+                                  face = "bold"),
+        text = element_text(size = 18),
+        strip.text = element_text(size = 18,
+                                  margin = margin(b = 0.3,
+                                                  t = 0.1,
+                                                  unit = "cm")),
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        strip.background = element_blank(),
+        legend.position = "none",
+        legend.title = element_blank(),
+        plot.margin = margin(t = 0.5,
+                             b = 0.2,
+                             l = 0.2,
+                             r = 1,
+                             unit = "cm")) +
+  coord_flip() +
+  facet_wrap(~property_changed,
+             scales = "free")
+
+ggsave(width = 10, height = 6, "../../figures/experiment2/exp2_expected_property_selections_for_property_type_ratings.pdf")
+
+```
+
+
+## Stats
+
+### Bayesian Linear Mixed Model
+
+```{r}
+
+fit.brm1 = brm(formula = response ~ 1 + property*condition + (1 | participant),
+     data = df.exp2.long,
+     seed = 1,
+     file = "cache/brm1") 
+
+fit.brm1
+
+```
+
+
+### Test Hypotheses
+
+```{r}
+fit.brm1 %>% 
+  emmeans(pairwise ~ property | condition) 
+
+      
+```
+
+
+
+## LLM Diagnosticity
+### Read in the data 
+
+```{r}
+
+df.bert_base = read_csv("../../data/experiment2/bert_base_property_probabilities.csv")
+
+df.bert_large = read_csv("../../data/experiment2/bert_large_property_probabilities.csv")
+
+df.roberta_large = read_csv("../../data/experiment2/roberta_large_property_probabilities.csv")
+
+```
+### Wrangle
+
+```{r}
+
+df.llm = df.bert_base %>% 
+  bind_rows(df.bert_large,
+            df.roberta_large)
+
+df.llm = df.llm %>% 
+  mutate(category = str_replace_all(category, "biological", "biology"),
+         model = str_replace_all(model, "bert_base", "BERT-base"),
+         model = str_replace_all(model, "bert_large", "BERT-large"),
+         model = str_replace_all(model, "roberta_large", "RoBERTa-large"))
+
+```
+
+### Stats
+
+#### Correlate participant ratings for individual properties with LLM completions
+
+```{r}
+
+df.each_property.means = df.each_property %>% 
+  select(property_selected, categorization, response) %>% 
+  rename(property = property_selected, category = categorization) %>%         mutate(category = str_replace_all(category, "behavioral", "behavior"),
+                                                                                     category = str_replace_all(category, "biological", "biology")) %>% 
+                                                                                     
+  group_by(category, property) %>% 
+  summarise(mean = mean(response, na.rm = TRUE))
+
+df.llm2 = df.llm %>%
+  #give short labels to properties
+  mutate(property = str_replace_all(property, "warm blooded", "blood"),
+         property = str_replace_all(property, "pointy ears", "ears"),
+         property = str_replace_all(property, "long legs", "legs"),
+         property = str_replace_all(property, "enables decomposition", "decompose"),
+         property = str_replace_all(property, "purifies water", "purify"),
+         property = str_replace_all(property, "makes honey", "honey"),
+         property = str_replace_all(property, "aerates soil", "aerate"),
+         property = str_replace_all(property, "share food with group members", "share"),
+         property = str_replace_all(property, "cooperates with group members", "cooperate"),
+         property = str_replace_all(property, "follow dominant group member", "follow"),
+         property = str_replace_all(property, "pair bond", "bond")) %>% 
+  group_by(category, property, model) %>%
+  summarise(entropy_value = entropy(probability)) %>% 
+  pivot_wider(names_from = model,
+              values_from = entropy_value)
+
+df.each_property.means %>%
+  left_join(df.llm2, by = c("category", "property")) %>% 
+  ungroup() %>% 
+  clean_names() %>% 
+  select(-c(category, property)) %>% 
+  correlate() %>% 
+  shave() %>% 
+  fashion()
+```
+
+#### Linear mixed effects model with diagnosticity and property type 
+
+```{r}
+df.regression = df.each_property %>% 
+  left_join(df.llm2,
+            by = c("property_selected" = "property",
+                   "property_changed" = "category")) %>% 
+  clean_names() %>% 
+  mutate(property_changed = factor(property_changed,
+                                   levels = c("behavior", "biology", "purpose", "social")),
+         property_purpose = ifelse(property_changed == "purpose", 1, 0))
+
+fit.brm_property_diagnosticity = brm(formula = response ~ 1 + property_changed + bert_large + (1 | participant),
+              data = df.regression,
+              seed = 1,
+              file = "cache/brm_property_diagnosticity")
+
+fit.brm_property_diagnosticity 
+```
+
+
+
+### Plots
+
+#### Top 5 probabilites for each property by model
+
+```{r fig.height=3, fig.width=8, message=FALSE, warning=FALSE}
+
+ggplot(data = df.llm,
+       mapping = aes(x = category,
+                     y = probability,
+                     group = category,
+                     color = category,
+                     fill = category)) + 
+  geom_point(position = position_jitterdodge(dodge.width = 0.5,
+                                             jitter.width = 0.7,
+                                             jitter.height = 0.06),
+             alpha = 0.9) + 
+  scale_fill_brewer(palette = "Set1") + 
+  scale_color_brewer(palette = "Set1") + 
+  scale_y_continuous(limits = c(0, 1) ) +
+  theme(plot.title = element_text(size=16, hjust = .5),
+        axis.text.x = element_blank(),
+        legend.title = element_blank(),
+        legend.position="bottom",
+        axis.title.x = element_blank(),
+        text = element_text(size = 18)) + 
+  facet_wrap(~model)
+
+ggsave(width = 8, height = 3, "../../figures/experiment2/bert_overall_probabilities.pdf")
+
+```
+
+
+# EXPERIMENT 3 (Induction)
+## Read in the data 
+
+```{r message=FALSE, warning=FALSE}
+
+df.exp3 = read_csv("../../data/experiment3/experiment3.csv")
+
+```
+
+## Wrangle 
+
+```{r}
+
+# catgeorization judgment dataframe
+df.exp3.long = df.exp3 %>%
+  rename(condition = expCondition) %>%
+   mutate(participant = rep(1:100, each = 2)) %>% 
+  select(participant, comprehension_check, condition, response_behavioral: response_social) %>% 
+  pivot_longer(cols = response_behavioral:response_social,
+               names_to = "property",
+               values_to = "response") %>% 
+  mutate(property = str_remove_all(property, "response_"),
+         property = str_replace_all(property, "behavioral", "behavior"),
+          property = str_replace_all(property, "biological", "biology"),
+         response = recode(response, `0` = 1, `1` = 2, `2` = 3, `3` = 4, `4` = 5, `5` = 6, `6` = 7),
+         condition = recode(condition, "non_generic" = "specific"),
+         study = rep("induction")) 
+
+
+```
+
+## Demographics
+
+```{r message=FALSE, warning=FALSE}
+# read in demographic data
+
+df.exp3.demographics = read_csv("../../data/experiment3/experiment3_demographics.csv")
+
+df.exp3.demographics %>% 
+  summarise(age_mean = mean(as.numeric(age), na.rm = TRUE))
+
+df.exp3.demographics %>% 
+  summarise(age_sd = sd(as.numeric(age), na.rm = TRUE))
+
+df.exp3.demographics %>% 
+  group_by(gender) %>% 
+  count() 
+
+df.exp3.demographics %>% 
+  group_by(race) %>% 
+  count() 
+
+df.exp3.demographics %>% 
+  group_by(ethnicity) %>% 
+  count() 
+
+
+```
+
+
+## Plots
+
+### Property Means by Condition
+
+```{r fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+
+ggplot(data = df.exp3.long,
+       mapping = aes(x = property,
+                     y = response,
+                     group = condition,
+                     color = property,
+                     fill = property,
+                     shape = condition)) + 
+  geom_hline(yintercept = 4, linetype = "dashed") +
+  geom_point(position = position_jitterdodge(dodge.width = 0.5,
+                                             jitter.width = 0.15,
+                                             jitter.height = 0.1),
+             alpha = 0.2) + 
+  theme(legend.position = "none") +
+  stat_summary(fun.data = "mean_cl_boot",
+               position = position_dodge(width = 0.55),
+               color = "black",
+               size = .9) + 
+  scale_fill_brewer(palette = "Set1") + 
+  scale_color_brewer(palette = "Set1") + 
+  scale_y_continuous(breaks = 1:7) +
+  scale_shape_manual(values = c(21, 23)) + 
+  ggtitle("What is this creature?") +
+  xlab("Property type that \n\ differed") +
+  theme(plot.title = element_text(size=24, hjust = .5),  
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        axis.title.x = element_blank(),
+        axis.text.x = element_text(size=16), 
+        axis.title.y = element_text(size=18),  
+        axis.text.y = element_text(size=14),  
+        legend.text = element_text(size=16)) + 
+  guides(fill = "none",
+         color = "none",
+         shape = guide_legend(override.aes = list(fill = "gray50"))) + 
+  coord_flip() +
+  annotation_custom(raster_midpoint_creature, xmin=4.35, xmax=5.3, ymin=-Inf, ymax=Inf) +
+  expand_limits(x = c(-Inf, 5.3)) +
+scale_y_continuous(breaks = 1:7,
+                   labels = c(
+    "1" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/left_creature.png' width='35' height='30'>",
+    "2" = "2",
+    "3" = "3",
+    "4" = "unsure",
+    "5" = "5",
+    "6" = "6",
+    "7" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/right_creature.png' width='35' height='30'>"
+  )) +
+  theme(axis.text.x = element_markdown())
+
+ggsave(width = 8, height = 5, "../../figures/experiment3/exp3_property_by_condition_means.pdf")
+
+```
+
+### Plot of Actual Property Ratings vs Expected Property Ratings
+
+```{r fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+
+# create dataframe to get proportion of properties that were categorized as expected 
+df.plot = df.exp3 %>%
+   mutate(participant = rep(1:100, each = 2)) %>% 
+          rename(condition = expCondition) %>% 
+  relocate(participant) %>% 
+   select(-c("item_0", "item_1", "error")) %>% 
+  pivot_longer(starts_with("item"),
+               names_to = "tmp",
+               values_to = "value") %>% 
+  separate(col = tmp, 
+           into = c("placeholder_a", "thing", "rank", "placeholder_b"),
+           sep = "_") %>% 
+  group_by(rank) %>%
+  mutate(row = row_number()) %>%
+  pivot_wider(names_from = rank,
+              values_from = value) %>% 
+  select(-c("workerid", "proliferate.condition", "placeholder_a", "placeholder_b", "row")) %>% 
+  mutate(thing = recode(thing, "0" = "first", "1" = "second")) %>% 
+         rename(item = property,
+                response = categorization) %>% 
+  mutate(item = str_replace_all(item, c("pair bonds" = "pair bond", "follows the dominant group member" = "follow the dominant group member", "cooperates with group members" = "cooperate with group members", "shares food with group members" = "share food with group members", "aerates soil" = "aerate soil", "makes honey" = "make honey", "purifies water" = "purify water", "enables decomposition" = "enable decomposition", "has pointy ears" = "have pointy ears", "has long legs" = "have long legs", "has hair" = "have hair", "is warm blooded" = "are warm blooded", "runs" = "run", "chews" = "chew", "swims" = "swim", "jumps" = "jump")),
+         expected = case_when(item %in% c("jump", "swim", "chew","run", "swallow", "fly", "smell", "salivate", "urinate", "digest slowly") ~ "behavior",
+                              item %in% c("are warm blooded", "have hair", "have long legs", "have pointy ears", "have sharp teeth", "have a tail", "have small nostrils", "have spots", "have claws", "have large eyes") ~ "biology",
+                              item %in% c("enable decomposition", "pollinate flowers", "purify water", "make honey", "aerate soil", "enable nitrogen fixation", "recycle nutrients in soil", "catch and kill insects", "produce oxygen", "eat animal carcasses") ~ "purpose",
+                              item %in% c("share food with group members", "cooperate with group members", "follow the dominant group member", "pair bond", "dance before mating", "are nomadic", "sing", "mark territory", "store resources", "build shelter") ~ "social")) %>% 
+  group_by(expected, response, item) %>% 
+  count(.drop = F)  %>% 
+  mutate(proportion = n/100) %>% 
+  mutate(response = str_replace_all(response, "behavioral", "behavior"),
+        response = str_replace_all(response, "biological", "biology")) %>% 
+  ungroup() %>% 
+  add_row(expected = "social", response = "purpose", item = "just for plotting", n = 0 , proportion = 0.00)
+
+ggplot(data = df.plot) +
+    geom_tile(aes(x = expected, 
+                    y = response, 
+                    fill = proportion,
+                    group = proportion),
+              color = "black") +
+scale_fill_gradient(low = "white", high = "black", limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
+ theme(legend.title = element_blank(),
+        text = element_text(size = 20)) +
+   xlab("Expected Categorization") +
+   ylab("Actual Categorization")
+
+ggsave(filename = "../../figures/experiment3/exp3_heat_map.pdf",
+       height = 5,
+       width = 8)
+
+```
+
+## Stats
+
+### Bayesian Linear Mixed Model
+
+```{r}
+
+fit.brm2 = brm(formula = response ~ 1 + property*condition + (1 | participant),
+     data = df.exp3.long,
+     seed = 1,
+     file = "cache/brm2") 
+
+fit.brm2
+
+```
+
+
+### Test Hypotheses
+
+```{r}
+fit.brm2 %>% 
+  emmeans(pairwise ~ property | condition) 
+
+```
+
+
+# EXPERIMENT 4 (Offspring)
+## Read in the data 
+
+```{r message=FALSE, warning=FALSE}
+
+df.exp4 = read_csv("../../data/experiment4/experiment4.csv")
+
+```
+
+## Wrangle 
+
+```{r}
+
+# catgeorization judgment dataframe
+df.exp4.long = df.exp4 %>%
+  rename(condition = expCondition) %>%
+   mutate(participant = rep(1:100, each = 2)) %>% 
+  select(participant, comprehension_check, condition, offspring_behavioral: offspring_social) %>% 
+  pivot_longer(cols = offspring_behavioral:offspring_social,
+               names_to = "property",
+               values_to = "response") %>% 
+  mutate(property = str_remove_all(property, "offspring_"),
+         property = str_replace_all(property, "behavioral", "behavior"),
+          property = str_replace_all(property, "biological", "biology"),
+         response = recode(response, `0` = 1, `1` = 2, `2` = 3, `3` = 4, `4` = 5, `5` = 6, `6` = 7),
+         condition = recode(condition, "non_generic" = "specific"),
+         study = rep("offspring")) 
+
+
+```
+
+## Demographics
+
+```{r message=FALSE, warning=FALSE}
+# read in demographic data
+
+df.exp4.demographics = read_csv("../../data/experiment4/experiment4_demographics.csv")
+
+df.exp4.demographics %>% 
+  summarise(age_mean = mean(as.numeric(age), na.rm = TRUE))
+
+df.exp4.demographics %>% 
+  summarise(age_sd = sd(as.numeric(age), na.rm = TRUE))
+
+df.exp4.demographics %>% 
+  group_by(gender) %>% 
+  count() 
+
+df.exp4.demographics %>% 
+  group_by(race) %>% 
+  count() 
+
+df.exp4.demographics %>% 
+  group_by(ethnicity) %>% 
+  count() 
+
+
+```
+
+
+## Plots
+
+### Property Means by Condition
+
+```{r fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+
+ggplot(data = df.exp4.long,
+       mapping = aes(x = property,
+                     y = response,
+                     group = condition,
+                     color = property,
+                     fill = property,
+                     shape = condition)) + 
+  geom_hline(yintercept = 4, linetype = "dashed") +
+  geom_point(position = position_jitterdodge(dodge.width = 0.5,
+                                             jitter.width = 0.15,
+                                             jitter.height = 0.1),
+             alpha = 0.2) + 
+  theme(legend.position = "none") +
+  stat_summary(fun.data = "mean_cl_boot",
+               position = position_dodge(width = 0.55),
+               color = "black",
+               size = .9) + 
+  scale_fill_brewer(palette = "Set1") + 
+  scale_color_brewer(palette = "Set1") + 
+  scale_y_continuous(breaks = 1:7) +
+  scale_shape_manual(values = c(21, 23)) + 
+  ggtitle("What is this creature?") +
+  xlab("Property type that \n\ differed") +
+  theme(plot.title = element_text(size=24, hjust = .5),  
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        axis.title.x = element_blank(),
+        axis.text.x = element_text(size=16), 
+        axis.title.y = element_text(size=18),  
+        axis.text.y = element_text(size=14),  
+        legend.text = element_text(size=16)) + 
+  guides(fill = "none",
+         color = "none",
+         shape = guide_legend(override.aes = list(fill = "gray50"))) + 
+  coord_flip() +
+  annotation_custom(raster_midpoint_creature, xmin=4.35, xmax=5.3, ymin=-Inf, ymax=Inf) +
+  expand_limits(x = c(-Inf, 5.3)) +
+scale_y_continuous(breaks = 1:7,
+                   labels = c(
+    "1" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/left_creature.png' width='35' height='30'>",
+    "2" = "2",
+    "3" = "3",
+    "4" = "unsure",
+    "5" = "5",
+    "6" = "6",
+    "7" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/right_creature.png' width='35' height='30'>"
+  )) +
+  theme(axis.text.x = element_markdown())
+
+ggsave(width = 8, height = 5, "../../figures/experiment4/exp4_property_by_condition_means.pdf")
+
+```
+
+### Plot of Actual Property Ratings vs Expected Property Ratings
+
+```{r fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+
+# create dataframe to get proportion of properties that were categorized as expected 
+df.plot = df.exp4 %>%
+   mutate(participant = rep(1:100, each = 2)) %>% 
+          rename(condition = expCondition) %>% 
+  relocate(participant) %>% 
+   select(-c("item_0", "item_1", "error")) %>% 
+  pivot_longer(starts_with("item"),
+               names_to = "tmp",
+               values_to = "value") %>% 
+  separate(col = tmp, 
+           into = c("placeholder_a", "thing", "rank", "placeholder_b"),
+           sep = "_") %>% 
+  group_by(rank) %>%
+  mutate(row = row_number()) %>%
+  pivot_wider(names_from = rank,
+              values_from = value) %>% 
+  select(-c("workerid", "proliferate.condition", "placeholder_a", "placeholder_b", "row")) %>% 
+  mutate(thing = recode(thing, "0" = "first", "1" = "second")) %>% 
+         rename(item = property,
+                response = categorization) %>% 
+  mutate(item = str_replace_all(item, c("pair bonds" = "pair bond", "follows the dominant group member" = "follow the dominant group member", "cooperates with group members" = "cooperate with group members", "shares food with group members" = "share food with group members", "aerates soil" = "aerate soil", "makes honey" = "make honey", "purifies water" = "purify water", "enables decomposition" = "enable decomposition", "has pointy ears" = "have pointy ears", "has long legs" = "have long legs", "has hair" = "have hair", "is warm blooded" = "are warm blooded", "runs" = "run", "chews" = "chew", "swims" = "swim", "jumps" = "jump")),
+         expected = case_when(item %in% c("jump", "swim", "chew","run", "swallow", "fly", "smell", "salivate", "urinate", "digest slowly") ~ "behavior",
+                              item %in% c("are warm blooded", "have hair", "have long legs", "have pointy ears", "have sharp teeth", "have a tail", "have small nostrils", "have spots", "have claws", "have large eyes") ~ "biology",
+                              item %in% c("enable decomposition", "pollinate flowers", "purify water", "make honey", "aerate soil", "enable nitrogen fixation", "recycle nutrients in soil", "catch and kill insects", "produce oxygen", "eat animal carcasses") ~ "purpose",
+                              item %in% c("share food with group members", "cooperate with group members", "follow the dominant group member", "pair bond", "dance before mating", "are nomadic", "sing", "mark territory", "store resources", "build shelter") ~ "social")) %>% 
+  group_by(expected, response, item) %>% 
+  count(.drop = F)  %>% 
+  mutate(proportion = n/100) %>% 
+  mutate(response = str_replace_all(response, "behavioral", "behavior"),
+        response = str_replace_all(response, "biological", "biology")) %>% 
+  ungroup() %>% 
+  add_row(expected = "social", response = "purpose", item = "just for plotting", n = 0 , proportion = 0.00)
+
+ggplot(data = df.plot) +
+    geom_tile(aes(x = expected, 
+                    y = response, 
+                    fill = proportion,
+                    group = proportion),
+              color = "black") +
+scale_fill_gradient(low = "white", high = "black", limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
+ theme(legend.title = element_blank(),
+        text = element_text(size = 20)) +
+   xlab("Expected Categorization") +
+   ylab("Actual Categorization")
+
+ggsave(filename = "../../figures/experiment4/exp4_heat_map.pdf",
+       height = 5,
+       width = 8)
+
+```
+
+## Stats
+
+### Bayesian Linear Mixed Model
+
+```{r}
+
+fit.brm3 = brm(formula = response ~ 1 + property*condition + (1 | participant),
+     data = df.exp4.long,
+     seed = 1,
+     file = "cache/brm3") 
+
+fit.brm3
+
+```
+
+
+### Test Hypotheses
+
+```{r}
+fit.brm3 %>% 
+  emmeans(pairwise ~ property | condition) 
+
+```
+
+### Effect of statememt type
+
+```{r}
+
+fit.brm3 %>% 
+  emmeans(pairwise ~ condition | property) 
+
+```
+
+
+# Session info
+
+```{r, echo=F}
+sessionInfo()
+```

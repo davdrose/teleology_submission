@@ -1,0 +1,8 @@
+{
+	"name_text": "On the island, you discover some new things and decide to call them",
+	"names": ["Xans", "Baxes", "Zars", "Abs", "Ents", "Pars", "Xims", "Crens", "Alers", "Jarks", "Mils", "Ners", "Gasplids", "Biglods", "Opersmodes", "Teraters", "Venulis", "Kedgergs", "Midlofs", "Yatens", "Funiptergs", "Henwals", "Kelgens", "Berbys", "Dilguds", "Cilchens", "Resptins", "Zogles", "Entels", "Jugflops", "Waltbins", "Qualzerps", "Hilptens", "Tenzulas", "Gentos", "Saltens", "Alzens", "Lelips", "Wanzos", "Delpons", "Kraxils", "Yarmins"],
+	"feature_text": "After observing them, you notice that they",
+	"features": ["have spots", "have long legs", "have hair", "have large eyes", "have DNA", "have bones", "have pointy ears", "are warm blooded", "have small nostrils", "have sharp teeth", "have a tail", "have claws", "fly", "run", "swim", "chew", "swallow", "smell", "jump", "digest slowly", "salivate", "urinate", "pair bond", "share food with group members", "dance before mating", "store resources", "build shelter", "mark territory", "sing", "follow the dominant group member", "are nomadic", "cooperate with group members",   "make honey", "pollinate flowers", "eat animal carcasses", "produce oxygen", "purify water", "enable decomposition", "aerate soil", "enable nitrogen fixation", "recycle nutrients in soil", "catch and kill insects"],
+	"question": "What category does this feature belong to?",
+	"feature_categories": ["purpose", "biology", "behavior", "social"]
+}

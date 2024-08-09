@@ -1,0 +1,81 @@
+model,property,category,question,answer,probability
+bert_large,purifies water,purpose,An animal that ,frog,0.14658983051776886
+bert_large,purifies water,purpose,An animal that ,fish,0.08772975951433182
+bert_large,purifies water,purpose,An animal that ,pig,0.061437882483005524
+bert_large,purifies water,purpose,An animal that ,horse,0.03966709226369858
+bert_large,purifies water,purpose,An animal that ,human,0.03889448195695877
+bert_large,enables decomposition,purpose,An animal that ,corpse,0.3817475736141205
+bert_large,enables decomposition,purpose,An animal that ,zombie,0.07600073516368866
+bert_large,enables decomposition,purpose,An animal that ,human,0.054432522505521774
+bert_large,enables decomposition,purpose,An animal that ,predator,0.027095641940832138
+bert_large,enables decomposition,purpose,An animal that ,body,0.018623627722263336
+bert_large,makes honey,purpose,An animal that ,bee,0.6361806392669678
+bert_large,makes honey,purpose,An animal that ,cow,0.04030698165297508
+bert_large,makes honey,purpose,An animal that ,goat,0.028112173080444336
+bert_large,makes honey,purpose,An animal that ,bird,0.02701781503856182
+bert_large,makes honey,purpose,An animal that ,hen,0.019116614013910294
+bert_large,aerates soil,purpose,An animal that ,pig,0.2674689292907715
+bert_large,aerates soil,purpose,An animal that ,cow,0.05337683483958244
+bert_large,aerates soil,purpose,An animal that ,beaver,0.03954429551959038
+bert_large,aerates soil,purpose,An animal that ,mammal,0.03276102617383003
+bert_large,aerates soil,purpose,An animal that ,worm,0.03194857016205788
+bert_large,pointy ears,biological,An animal that ,mouse,0.1395614594221115
+bert_large,pointy ears,biological,An animal that ,dog,0.08469659090042114
+bert_large,pointy ears,biological,An animal that ,pig,0.05012333765625954
+bert_large,pointy ears,biological,An animal that ,deer,0.04979516565799713
+bert_large,pointy ears,biological,An animal that ,rabbit,0.048296693712472916
+bert_large,long legs,biological,An animal that ,horse,0.16121791303157806
+bert_large,long legs,biological,An animal that ,spider,0.04502932354807854
+bert_large,long legs,biological,An animal that ,cat,0.040824905037879944
+bert_large,long legs,biological,An animal that ,kangaroo,0.03635099530220032
+bert_large,long legs,biological,An animal that ,turtle,0.025684842839837074
+bert_large,hair,biological,An animal that ,weapon,0.042759884148836136
+bert_large,hair,biological,An animal that ,hair,0.03023669123649597
+bert_large,hair,biological,An animal that ,man,0.02118026837706566
+bert_large,hair,biological,An animal that ,beast,0.021144263446331024
+bert_large,hair,biological,An animal that ,human,0.020853856578469276
+bert_large,warm blooded,biological,An animal that ,human,0.0857730507850647
+bert_large,warm blooded,biological,An animal that ,wolf,0.05422189459204674
+bert_large,warm blooded,biological,An animal that ,beast,0.03937448561191559
+bert_large,warm blooded,biological,An animal that ,dog,0.03674560412764549
+bert_large,warm blooded,biological,An animal that ,man,0.027000436559319496
+bert_large,jump,behavior,An animal that ,horse,0.22036601603031158
+bert_large,jump,behavior,An animal that ,bird,0.054325856268405914
+bert_large,jump,behavior,An animal that ,dog,0.05381890386343002
+bert_large,jump,behavior,An animal that ,human,0.05212154611945152
+bert_large,jump,behavior,An animal that ,deer,0.03915173560380936
+bert_large,swim,behavior,An animal that ,fish,0.4119991660118103
+bert_large,swim,behavior,An animal that ,swimmer,0.09510274231433868
+bert_large,swim,behavior,An animal that ,frog,0.08339769393205643
+bert_large,swim,behavior,An animal that ,shark,0.059466294944286346
+bert_large,swim,behavior,An animal that ,dolphin,0.05016693100333214
+bert_large,chew,behavior,An animal that ,human,0.07969802618026733
+bert_large,chew,behavior,An animal that ,dog,0.06526169180870056
+bert_large,chew,behavior,An animal that ,pig,0.04844992235302925
+bert_large,chew,behavior,An animal that ,beast,0.04504549130797386
+bert_large,chew,behavior,An animal that ,mammal,0.029172975569963455
+bert_large,run,behavior,An animal that ,runner,0.15248993039131165
+bert_large,run,behavior,An animal that ,coward,0.05097927898168564
+bert_large,run,behavior,An animal that ,human,0.04370651766657829
+bert_large,run,behavior,An animal that ,run,0.042906224727630615
+bert_large,run,behavior,An animal that ,dog,0.035317063331604004
+bert_large,pair bond,social,An animal that ,dog,0.08094313740730286
+bert_large,pair bond,social,An animal that ,human,0.06568548083305359
+bert_large,pair bond,social,An animal that ,cat,0.06298311799764633
+bert_large,pair bond,social,An animal that ,horse,0.046657562255859375
+bert_large,pair bond,social,An animal that ,wolf,0.027090301737189293
+bert_large,follow dominant group member,social,An animal that ,predator,0.13492706418037415
+bert_large,follow dominant group member,social,An animal that ,group,0.0807371512055397
+bert_large,follow dominant group member,social,An animal that ,dominant,0.0726933479309082
+bert_large,follow dominant group member,social,An animal that ,primate,0.06432459503412247
+bert_large,follow dominant group member,social,An animal that ,pet,0.030809873715043068
+bert_large,cooperates with group members,social,An animal that ,group,0.19342255592346191
+bert_large,cooperates with group members,social,An animal that ,pet,0.12325514853000641
+bert_large,cooperates with group members,social,An animal that ,cooperative,0.07954224944114685
+bert_large,cooperates with group members,social,An animal that ,predator,0.04017748683691025
+bert_large,cooperates with group members,social,An animal that ,member,0.0366487130522728
+bert_large,share food with group members,social,An animal that ,group,0.05804523453116417
+bert_large,share food with group members,social,An animal that ,predator,0.04534219950437546
+bert_large,share food with group members,social,An animal that ,pet,0.03831429407000542
+bert_large,share food with group members,social,An animal that ,kangaroo,0.03139043599367142
+bert_large,share food with group members,social,An animal that ,primate,0.02408728376030922

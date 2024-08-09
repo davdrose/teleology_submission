@@ -1,0 +1,241 @@
+<!-- Bot Check -->
+<div class="slide" id="botcheck">
+  <h1 align="center">Bot Check</h1>
+  <div class="blue" text-align="center">
+    <div id="challenge_container" text-align="center"></div>
+    <input type="text" id="bot_text"></input>
+  </div>
+  <div class="continue">
+    <button type="button" id="bot_check_button" class="bfmt">Continue</button>
+  </div>
+</div>
+
+<!-- Bot check success -->
+<div class="slide" id="botcheck_pass">
+  <h1>Bot Check Passed</h1>
+  <div class="blue">
+    <p>Nice job! Click the button to proceed with the experiment.</p>
+  </div>
+  <div class="continue">
+    <button type="button" class="bfmt" id="botcheck_pass_button">Continue</button>
+  </div>
+</div>
+
+<!-- Bot check fail -->
+<div class="slide" id="botcheck_fail">
+  <h1>Bot Check feedback</h1>
+<div class="blue">
+
+<p>Unfortunately, you didn't pass the bot check. Please make sure to spell carefully!</p>
+
+</div>
+<div class="continue" >
+    <button type="button" class="bfmt" id="botcheck_fail_button">Continue</button>
+  </div>
+</div>
+
+<!-- Instructions 1 -->
+<div class="slide" class="instructions" id="instructions-1">
+  <h1>Instructions</h1>
+  <div class="blue">
+    <div id="instructions-text"></div>
+     <p>You have just arrived on a new, completley uncharted island.  On this island, you discover forty-two new things. For each thing, you discover some feature of it.  And your job is to determine how to categorize this feature. You will have four categories to choose from:
+      <ol>
+        <li>biology</li>
+        <li>behavior</li>
+        <li>social</li>
+        <li>purpose</li>
+      </ol>
+      To help you get a better sense for how to think about these categories we will show you two examples.
+  </div>
+  <div class="continue">
+    <button type="button" class="instructions">Continue</button>
+  </div>
+</div>
+
+<div class="slide" class="instructions" id="instructions-2">
+  <h1>Instructions</h1>
+  <div class="blue">
+    <div id="instructions-text"></div>
+     <p><b>Example 1.</b> Suppose you come across a bee and observe four things about it: it secretes wax, stings, works with other bees, and pollinates flowers. If you had to categorize each of these things you might do the following:
+      <ol>
+        <li>"secreting wax" &#8594; <b>biology</b>: This is like familiar biological processes, such as producing tears or sweating.</li>
+        <li>"stinging" &#8594; <b>behavior</b>: This is like familiar behaviors such as snapping your fingers.</li>
+        <li>"working with other bees" &#8594; <b>social</b>: This is characteristically social in the way that, for instance, playing a game with other people is social.</li>
+        <li>"pollinating flowers" &#8594; <b>purpose</b>: This is the sort of thing that might be one of their purposes in the same way that you might think one purpose of clouds is to rain.</li>
+      </ol>
+  </div>
+  <div class="continue">
+    <button type="button" class="instructions">Continue</button>
+  </div>
+</div>
+
+<div class="slide" class="instructions" id="instructions-3">
+  <h1>Instructions</h1>
+  <div class="blue">
+    <div id="instructions-text"></div>
+     <p><b>Example 2</b>. Suppose you come across a venus fly trap and observe four things about it: it photosynthesizes, snaps its leaves shut, sends signals to venus fly traps and traps insects.
+    <ol>
+      <li>"photosynthesizes" &#8594; <b>biology</b>: This is like familiar biological processes, such as digesting.</li>
+        <li>"snaps its leaves shut" &#8594; <b>behavior</b>: This is like familiar behaviors such as chewing.</li>
+        <li>"sending signals to other venus fly traps" &#8594; <b>social</b>: This is characteristically social in the way that, for instance, communicating with other people is social.</li>
+        <li>"traps insects" &#8594; <b>purpose</b>: This is the sort of thing that might be one of their purposes in the same way that one of the purposes of vultures is to eat carcasses.</li>
+      </ol>
+     <p>
+      We will now ask you a few comprehension check questions before you can start with the experiment.
+     </p>
+  </div>
+  <div class="continue">
+    <button type="button" class="instructions">Continue</button>
+  </div>
+</div>
+
+<!-- Comprehension check questions -->
+<div class="slide" id="comprehension-check">
+  <h1></h1>
+  <div class="blue">
+       <p>How many new things will you be asked about in this experiment?<br/>
+      <input class="compQ" type="radio" name="comprehension_radio1" value="24">24<br/>
+      <input class="compQ" type="radio" name="comprehension_radio1" value="42">42<br/>
+      <input class="compQ" type="radio" name="comprehension_radio1" value="52">52<br/>
+      <input class="compQ" type="radio" name="comprehension_radio1" value="64">64<br/>
+    </p>
+    <br/>
+    <p>For each feature, what options will you be given to categorize the feature?<br/>
+      <input class="compQ" type="radio" name="comprehension_radio2" value="2">biology, cultural, behavior, purpose<br/>
+      <input class="compQ" type="radio" name="comprehension_radio2" value="3">behavior, social, purpose, biomechanic<br/>
+      <input class="compQ" type="radio" name="comprehension_radio2" value="4">purpose, biology, social, behavior<br/>
+      <input class="compQ" type="radio" name="comprehension_radio2" value="5">social, behavior, cultural, biology<br/>
+    </p>
+  </div>
+  <div class="continue">
+    <button type="button" class="bfmt" id="comp-cont">Continue</button>
+  </div>
+</div>
+
+<!-- Comprehension check pass -->
+<div class="slide" id="comprehension_check_pass">
+  <h1>Comprehension Check Passed</h1>
+  <div class="blue">
+    <p>Nice job! When you are ready press the continue button to get started with the experiment.</p>
+  </div>
+  <div class="continue">
+    <button type="button" class="bfmt" id="comprehension_pass">Continue</button>
+  </div>
+</div>
+
+<!-- Comprehension check fail -->
+<div class="slide" id="comprehension_check_fail">
+  <h1>Check questions feedback</h1>
+<div class="blue">
+
+<p>Unfortunately, you didn't answer all of the comprehension check questions correctly.</p>
+
+<p>Please have another close look at the instructions! </p>
+
+</div>
+<div class="continue" >
+    <button type="button" class="bfmt" id="comprehension_fail">Continue</button>
+  </div>
+</div>
+
+<!-- Trial -->
+<div class="slide" id="trial">
+  <div id="refresh_warning"><p>WARNING: DO NOT REFRESH THIS PAGE</p></div>
+  <div id="progress">
+    <div id="progress-text">Progress</div>
+    <div id="indicator-container">
+      <div id="indicator-outer">
+        <div id="indicator-stage"></div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+  <hr />
+  <div id="stim">
+
+  <div id="description-container">
+    <div id="name_text"></div>
+    <div id="thing_name"></div>
+    <div id="feature_text"></div>
+    <div id="item"></div>
+    <div id="question"></div>
+  </div>
+
+    <div class="spacer"></div>
+
+    <div class = "choices_container">
+    <div class="continue" >
+      <button type="button" class="response_button" id="response_button1"></button>
+      <button type="button" class="response_button" id="response_button2"></button>
+      <button type="button" class="response_button" id="response_button3"></button>
+      <button type="button" class="response_button" id="response_button4"></button>
+    </div>
+      <div class="spacer"></div>
+      <hr />
+  </div>
+</div>
+</div>
+
+
+<!--Story Comprehension Check -->
+<div class="slide" id="story_comp_check">
+  <h1></h1>
+  <div class="blue">
+       <p>In the two stories you read, what were the two new things the scientists discovered on the island?<br/>
+      <input class="compS" type="radio" name="comprehension_radio_story" value="bird_insect">bird and insect<br/>
+      <input class="compS" type="radio" name="comprehension_radio_story" value="liquid_gold">liquid and gold<br/>
+      <input class="compS" type="radio" name="comprehension_radio_story" value="insect_liquid">insect and liquid<br/>
+      <input class="compS" type="radio" name="comprehension_radio_story" value="shell_bird">shell and bird<br/>
+    </p>
+  </div>
+  <div class="continue">
+    <button type="button" class="bfmt" id="story_comp_cont">Continue</button>
+  </div>
+</div>
+
+<!-- Demographics -->
+<div class="slide" id="demographics">
+  <h1>Demographic information</h1>
+  <div class="blue">
+    <p>What factors influenced your choices?</p>
+
+    <textarea name="feedback" style="width:760px; height:100px;"  ></textarea>
+
+    <p><b>Please provide the following demographic information to complete the study</b>:</p>
+
+
+    <p><b>1.</b> Native language:
+      <input class = "demoQ" id = "language_answer" type="text" name="language">
+      <input class = "demoQ" id = "language_na" type="checkbox" name="language" value="optout">Prefer not to say
+    </p>
+
+    <p><b>2.</b> Age:
+      <input class = "demoQ" id = "age_answer" type="text" name="age">
+      <input class = "demoQ" id = "age_na" type="checkbox" name="age" value="optout">Prefer not to say
+    </p>
+
+    <p><b>3.</b> Gender:
+      <input class = "demoQ" id = "gender_answer" type="text" name="gender">
+      <input class = "demoQ" id = "gender_na" type="checkbox" name="gender" value="optout">Prefer not to say
+    </p>
+
+    <p><b>4.</b> Race:
+      <input class="demoQ" id = race_answer type="text" name="race">
+      <input class="demoQ" id = "race_na" type="checkbox" name="race" value="outout">Prefer not to say
+    </p>
+
+    <p><b>5.</b> Ethnicity:
+      <input class="demoQ" type="radio" name="ethnicity" value="hispanic">Hispanic
+      <input class="demoQ" type="radio" name="ethnicity" value="non-hispanic">Non-Hispanic
+      <input class="demoQ" type="radio" name="ethnicity" value="optout">Prefer not to say
+    <br/>
+
+    <p align="center">Please press finish to complete the experiment.</p>
+
+  </div>
+
+  <div class="continue">
+    <button type="button" class="bfmt" id="trial_finish">Finish</button>
+  </div>
+</div>

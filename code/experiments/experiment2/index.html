@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Experiment</title>
+
+  <link href="https://unpkg.com/jspsych@7.2.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+
+  <style id="jspsych-survey-likert-css">
+    .jspsych-survey-likert-statement {
+      display: block;
+      font-size: 16px;
+      padding-top: 30px;
+      margin-bottom: 10px;
+    }
+
+    .jspsych-survey-likert-opts {
+      list-style: none;
+      width: " + ";
+      margin: auto;
+      padding: 10 10 35px;
+      display: block;
+      font-size: 25px;
+      line-height: 1.3em;
+    }
+
+    .jspsych-survey-likert-opt-label {
+      line-height: 0.9em;
+      color: #444;
+    }
+
+    .jspsych-survey-likert-opts:before {
+      display: none !important;
+    }
+
+    .jspsych-survey-likert-opts:last-of-type {
+      border-bottom: 0;
+    }
+
+    .jspsych-survey-likert-opts li {
+      display: inline-block;
+      /*width:19%;*/
+      text-align: center;
+      vertical-align: top;
+    }
+
+    .jspsych-survey-likert-opts li input[type=radio] {
+      display: block;
+      position: relative;
+      top: 0;
+      left: 50%;
+      margin-left: -6px;
+    }
+  </style>';
+  <link rel="stylesheet" href='css/jspsych-survey-likert-css.css' type="text/css" />
+  <link rel="stylesheet" href='css/jquery-ui-edit.css' />
+
+  <script src="https://unpkg.com/jspsych@7.2.3"></script>
+  <script src='js/jquery.min.js'></script>
+  <script src='js/jquery-ui.min.js'></script>
+  <script src="js/jquery-ui-slider-pips.js"></script>
+  <script src='js/utils.js'></script>
+
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.1"></script>s
+  <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.1.1"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.1"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.1"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-likert@1.1.1"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.1"></script>
+  <script src="https://proliferate.alps.science/static/js/proliferate.js"> </script>
+  <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.1"></script>
+
+
+  <script src='js/consent.js'></script>
+  <script src='js/intro.js'></script>
+  <script src='js/trial_data.js'></script>
+  <script src='js/demographic_form.js'></script>
+
+</head>
+
+<body></body>
+<script>
+
+  let timeline = []
+
+
+  // Data display
+
+  let jsPsych = initJsPsych({
+    use_webaudio: false,
+    show_progress_bar: true,
+    on_finish: function () {
+      jsPsych.data.displayData();
+
+      let trialResponseDataList = [];
+      const categorizationPages = jsPsych.data.get().filter(
+        { "page_type": "categorization_trials", "correct": true }).values();
+      const sliderPages = jsPsych.data.get().filter(
+        { "page_type": "property_replacement_trials" }).values();
+
+      for (let pairId = 1; pairId < 3; pairId++) {
+        let trialResponseData = {}
+        trialResponseData["comprehension_check"] = jsPsych.data.get().filter(
+          { "page_type": "comprehension_check" }).values()[0]["response"];
+        const categorizationPages = jsPsych.data.get().filter(
+          { "page_type": "categorization_trials", "correct": true, "pair_id": pairId }).values();
+        for (const categorizationPage of categorizationPages) {
+          const itemId = categorizationPage["item_id"];
+          trialResponseData[`item_${itemId}`] = categorizationPage["item"];
+          trialResponseData["expCondition"] = categorizationPage["expCondition"];
+          for (let j = 0; j < 4; j++) {
+            trialResponseData[`item_${itemId}_property_${j}`] = categorizationPage["properties"][j][0];
+            trialResponseData[`item_${itemId}_categorization_${j}`] = categorizationPage["response"][`group_${j + 1}`];
+          }
+        }
+
+        for (const sliderPage of jsPsych.data.get().filter(
+          { "page_type": "property_replacement_trials", "pair_id": pairId }).values()) {
+          trialResponseData[`response_${sliderPage["category_replaced"]}`] = sliderPage["response"]["Q0"];
+        }
+        trialResponseDataList.push(trialResponseData);
+
+      }
+
+      console.log(trialResponseDataList);
+
+      for (const data_page of jsPsych.data.get().filter({ "page_type": "trials" }).values()) {
+        const item = data_page["item"];
+        const question = data_page["question"];
+        trialData["condition"] = data_page["condition"];
+        trialData[`${item}_${question}_likert`] = data_page["response"]["Q0"];
+      }
+      // for (const data_page of jsPsych.data.get().filter({ "page_type": "trial_comprehension_question" }).values()) {
+      //   const item = data_page["item"]
+      //   trialData[`${item}_comprehension_answer`] = data_page["response"]
+      // }
+      // for (const data_page of jsPsych.data.get().filter({ "page_type": "comprehension_check_1" }).values()) {
+      //   const question = data_page["question"]
+      //   trialData[`${question}_comprehension_answer`] = data_page["response"]["Q0"]
+      // }
+
+      let gender = jsPsych.data.get().filter({ "page_type": "participant_survey" }).values()[0]["response"].gender
+      if (!gender && jsPsych.data.get().filter({ "page_type": "participant_survey" }).values()[0]["response"].other_gender) {
+        gender = "other_gender"
+      }
+      let age = parseInt(jsPsych.data.get().filter({ "page_type": "participant_survey" }).values()[0]["response"].age)
+      let race = jsPsych.data.get().filter({ "page_type": "participant_survey" }).values()[0]["response"].race
+      if (!race && jsPsych.data.get().filter({ "page_type": "participant_survey" }).values()[0]["response"].other_race) {
+        race = "other_race"
+      }
+      let ethnicity = jsPsych.data.get().filter({ "page_type": "participant_survey" }).values()[0]["response"].ethnicity
+      let demographics = {
+        "age": age,
+        "gender": gender,
+        "race": race,
+        "ethnicity": ethnicity
+      }
+
+      let data_final = {
+        "trials": trialResponseDataList,
+        "participants": demographics,
+      }
+      console.log(data_final)
+
+      proliferate.submit(data_final);
+
+      $('#jspsych-content').html('<div style="margin: auto;"> <p> Thank you for' +
+        ' participating in this experiment! </p> <p> Redirecting you back to' +
+        ' Prolific... </p>');
+      setTimeout(function () { }, 400);
+    }
+  });
+
+
+  // Consent page
+
+  timeline.push(consent);
+
+  // Intro page
+
+  timeline.push(intro)
+
+
+
+  // Instructions
+
+  // const instr_sec_page = '<img src="images/background_information1.png" width="1300" height="120"><img src="images/background_information2.png" width="1100" height="150"></img><br>' +
+  //   '<div style=' +
+  //   '"position:relative; margin: 0 auto 2em; text-align: left; width:1100px;">' +
+  //   '<p>In this day and age, it seems that genes are "everything" when it comes to determining the characteristics of an organism. However, the importance of the environment in biology cannot be denied. For example, nearly everyone knows that a dry season can ruin crop yields. However, digging a little deeper reveals even more intriguing examples of environmental influence on organisms. For instance, research has shown that the sex of some species of reptiles is influenced by the temperature at which the reptiles\' eggs are incubated during development. There appear to be certain situations in which the environment affects not only the growth and health of an organism, but also the use or deployment of the organism\'s genes. Does this mean that genes aren\'t, in fact, everything? The observation that genetically identical organisms often vary greatly in phenotype clearly shows that gene-environment interaction is indeed an important regulator of phenotypic variation. <br><br>Studies have shown that there is a specific point in the development of certain organisms, known as the thermosensitive period (TSP), during which the gonadal tissue is responsive to temperature. When exposed to one range of temperatures, this tissue develops into ovaries; when exposed to a different range, it develops into testes. Such is the case in the turtle Emys obicularis: at incubation temperatures of 25°C, all such turtles are born male, but at temperatures of 30°C, all are born female. Prior to the TSP, all of the embryonic gonads appear the same; however, during the TSP, something happens to tell the tissues to become either ovaries or testes. For further details see <a href="https://www.nature.com/scitable/topicpage/environment-controls-gene-expression-sex-determination-and-982/" target="_blank">here.</a></p></div>';
+
+
+  // const instructions = {
+  //   type: jsPsychInstructions,
+  //   pages: [
+  //     '<p style="text-align:left; max-width:1100px;">In this experiment, you will first learn about some very important facts regarding the significance of the environment to the traits an animal develops.</p><p style="text-align:left; max-width:1100px;">DNA of course plays a crucial role in which traits develop in an animal, but which traits develop also depends crucially on the environment.  For instance, the temperature of turtle eggs during incubation affects whether the turtle will have female or male traits (see <a href="https://www.nature.com/scitable/topicpage/environment-controls-gene-expression-sex-determination-and-982/" target="_blank">here</a>). Temperature also affects whether and where rabbits will have pigmented fur (see <a href="https://www.nature.com/scitable/topicpage/environmental-influences-on-gene-expression-536/" target="_blank">here</a>). Light can even affect gene expression, with caterpillars exposed to different colors of light having more or less intensely colored wings when they transition to butterflies (see <a href="https://www.nature.com/scitable/topicpage/environmental-influences-on-gene-expression-536/" target="_blank">here</a>). There are many more examples of the importance of the environment that could be given. But to help emphasize its importance, we would now like you to read a brief excerpt from an article by Amy Ralston, PhD and Kenna Shaw PhD that was published in <em>Nature Education.</em></p><br>',
+  //     instr_sec_page,
+  //     '<p style="text-align:left; font-size:120%; max-width:1000px;">Now we would like to ask you to imagine some different kinds of things. Here we are interested in your opinion.</p><br><br>',
+  //   ],
+  //   //on_load: set_slider(),
+  //   show_clickable_nav: true,
+  //   on_finish: function () {
+  //     const prog = jsPsych.getProgressBarCompleted();
+  //     // jsPsych.setProgressBar(prog + 0.025);
+  //   }
+  // };
+
+  // timeline.push(instructions);
+
+
+  // Main trials
+
+  var condition = get_url_param("condition");
+
+  var expCondition = ["generic", "non_generic"];
+
+  expCondition = expCondition[condition - 1];
+
+
+  const categoryReplacementList = jsPsych.randomization.shuffle(["behavioral", "biological", "social", "purpose"]);
+  // const expCondition = jsPsych.randomization.shuffle(["generic", "non_generic"])[0];
+
+
+  itemPairList = [[["Vulpan", "Zerp"], ["Jig", "Xan"]], [["Vulpan", "Xan"], ["Jig", "Zerp"]], [["Vulpan", "Jig"], ["Xan", "Zerp"]]];
+  const itemPairs = jsPsych.randomization.shuffle(itemPairList)[0];
+  console.log(itemPairs);
+
+
+  let pairId = 0;
+  for (let itemPair of itemPairs) {
+    pairId++;
+    itemPair = jsPsych.randomization.shuffle(itemPair);
+    for (const item of itemPair) {
+      const shuffledPropertyList = jsPsych.randomization.shuffle(trialData[item][expCondition]["property"]);
+      let color = "";
+      if (item === itemPair[0]) color = "red"; else color = "blue";
+      const categorizationTable = {
+        type: jsPsychSurveyHtmlForm,
+        data: {
+          "page_type": "categorization_trials",
+          "pair_id": pairId,
+          "item_id": item === itemPair[0] ? 0 : 1,
+          "item": item,
+          "properties": shuffledPropertyList,
+          "expCondition": expCondition,
+        },
+        html: function () {
+          const lastAttempts = jsPsych.data.get().filter({ "page_type": "categorization_trials" }).values();
+          let lastAttempt = lastAttempts[lastAttempts.length - 1];
+          let errorPrompt = "";
+          if (lastAttempt && !lastAttempt["correct"]) {
+            errorPrompt = "<div style=color:red;>Please select a unique category for each property.";
+          } else {
+            errorPrompt = "";
+            lastAttempt = { "response": { "group_1": "", "group_2": "", "group_3": "", "group_4": "" } };
+          }
+          console.log(lastAttempt);
+          console.log(jsPsych.data.getDataByTimelineNode(jsPsych.getCurrentTimelineNodeID()));
+          console.log(shuffledPropertyList);
+          return `
+          <style>
+          table, th, td {
+            table-layout: fixed;
+            width: 100%;
+            text-align: relative;
+            border:0.5px solid black;
+            border-spacing:1px;
+            border-color:gray;
+            class:center;
+          }
+          </style>
+          <body>
+
+          <div style="text-align:center;font-size:120%;">${trialData[item][expCondition]["context"]}<br></div></div><img src='${trialData[item][expCondition]["pic"]}'width="220"''height="280"'</img>
+
+          <div style="text-align:center;font-size:100%;">
+            <br>Please categorize the following properties in the table below for <b style="color:${color};font-weight:bold;">${trialData[item][expCondition]["label"][1]}.</b><br><br>For each property, indicate whether you think it is best categorized as: <br> a biological property, a behavioral property, a social property, or a property that is related to its purpose.<br><br>Please select a unique category for each property.
+            <br>
+            <br>
+          </div>
+
+          <div style="vertical-align:top; text-align:center; margin: 0 auto 2em; width:1200px;">
+            <table style="width:100%;">
+              <tr>
+                <th style="width:45%;">Property</th>
+                <th colspan="4">Category</th>
+              </tr>
+              <tr>
+                <td style="width:160%;color:${color};font-weight:bold;">${shuffledPropertyList[0][0]}</td>
+                <td>
+                  <input name="group_1" type="radio" id="biological" value="biological" 
+                  ${lastAttempt["response"]["group_1"] === "biological" ? "checked" : ""}/>
+                  <label for="biological"> biological </label>
+                </td>
+                <td>
+                  <input name="group_1" type="radio" id="behavioral" value="behavioral" required 
+                  ${lastAttempt["response"]["group_1"] === "behavioral" ? "checked" : ""}/>
+                  <label for="behavioral"> behavioral </label>
+                </td>
+                <td>
+                  <input name="group_1" type="radio" id="social" value="social" 
+                  ${lastAttempt["response"]["group_1"] === "social" ? "checked" : ""}/>
+                  <label for="social"> social </label>
+                </td>
+                <td>
+                  <input name="group_1" type="radio" id="purpose" value="purpose" 
+                  ${lastAttempt["response"]["group_1"] === "purpose" ? "checked" : ""}/>
+                  <label for="purpose"> purpose </label>
+                </td>
+              </tr> 
+              <tr>
+                <td style="width:160%;color:${color};font-weight:bold;">${shuffledPropertyList[1][0]}</td>
+                <td>
+                  <input name="group_2" type="radio" id="biological" value="biological" 
+                  ${lastAttempt["response"]["group_2"] === "biological" ? "checked" : ""}/>
+                  <label for="biological"> biological </label>
+                </td>
+                <td >
+                  <input name="group_2" type="radio" id="behavioral" value="behavioral" required 
+                  ${lastAttempt["response"]["group_2"] === "behavioral" ? "checked" : ""}/>
+                  <label for="behavioral"> behavioral </label>
+                </td>
+                <td>
+                  <input name="group_2" type="radio" id="social" value="social" 
+                  ${lastAttempt["response"]["group_2"] === "social" ? "checked" : ""}/>
+                  <label for="social"> social </label>
+                </td>
+                <td>
+                  <input name="group_2" type="radio" id="purpose" value="purpose" 
+                  ${lastAttempt["response"]["group_2"] === "purpose" ? "checked" : ""}/>
+                  <label for="purpose"> purpose </label>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:160%;color:${color};font-weight:bold;">${shuffledPropertyList[2][0]}</td>
+                <td>
+                  <input name="group_3" type="radio" id="biological" value="biological" 
+                  ${lastAttempt["response"]["group_3"] === "biological" ? "checked" : ""}/>
+                  <label for="biological"> biological </label>
+                </td>
+                <td>
+                  <input name="group_3" type="radio" id="behavioral" value="behavioral" required 
+                  ${lastAttempt["response"]["group_3"] === "behavioral" ? "checked" : ""}/>
+                  <label for="behavioral"> behavioral </label>
+                </td>
+                <td>
+                  <input name="group_3" type="radio" id="social" value="social" 
+                  ${lastAttempt["response"]["group_3"] === "social" ? "checked" : ""}/>
+                  <label for="social"> social </label>
+                </td>
+                <td>
+                  <input name="group_3" type="radio" id="purpose" value="purpose" 
+                  ${lastAttempt["response"]["group_3"] === "purpose" ? "checked" : ""}/>
+                  <label for="purpose"> purpose </label>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:160%;color:${color};font-weight:bold;">${shuffledPropertyList[3][0]}</td>
+                <td>
+                  <input name="group_4" type="radio" id="biological" value="biological" 
+                  ${lastAttempt["response"]["group_4"] === "biological" ? "checked" : ""}/>
+                  <label for="biological"> biological </label>
+                </td>
+                <td>
+                  <input name="group_4" type="radio" id="behavioral" value="behavioral" required 
+                  ${lastAttempt["response"]["group_4"] === "behavioral" ? "checked" : ""}/>
+                  <label for="behavioral"> behavioral </label>
+                </td>
+                <td>
+                  <input name="group_4" type="radio" id="social" value="social" 
+                  ${lastAttempt["response"]["group_4"] === "social" ? "checked" : ""}/>
+                  <label for="social"> social </label>
+                </td>
+                <td>
+                  <input name="group_4" type="radio" id="purpose" value="purpose" 
+                  ${lastAttempt["response"]["group_4"] === "purpose" ? "checked" : ""}/>
+                  <label for="purpose"> purpose </label>
+                </td>
+              </tr>
+            </table>
+          </div>
+          
+          <p>${errorPrompt}</p>
+
+          </body>
+          `;
+        },
+        button_label: 'Continue',
+        on_finish: function (data) {
+
+          const responseSet = new Set([
+            data.response["group_1"],
+            data.response["group_2"],
+            data.response["group_3"],
+            data.response["group_4"],
+          ]);
+          console.log(responseSet);
+          console.log(responseSet.size);
+          if (responseSet.size < 4) {
+            data["correct"] = false;
+          } else {
+            data["correct"] = true;
+            let itemCategoryDict = {};
+            itemCategoryDict[data["response"]["group_1"]] = data["properties"][0][0];
+            itemCategoryDict[data["response"]["group_2"]] = data["properties"][1][0];
+            itemCategoryDict[data["response"]["group_3"]] = data["properties"][2][0];
+            itemCategoryDict[data["response"]["group_4"]] = data["properties"][3][0];
+            data["property_categorization"] = itemCategoryDict;
+          }
+        },
+      };
+      const categorizationTableLoop = {
+        timeline: [categorizationTable],
+        loop_function: function (data) {
+          return !data.values()[0]["correct"];
+        }
+      }
+      timeline.push(categorizationTableLoop);
+    };
+
+    function createTable(item0, item1, item0CategoryDict, item1CategoryDict, categoryToHighlight) {
+      return `
+      <div style="vertical-align:top;text-align:center; margin: 0 auto 2em; width:1250px;">
+          <table style="width:100%;">
+            <!--
+            <tr>
+                <th style="width:35%;">Category</th>
+                <th colspan="2">Property</th>
+            </tr>
+            -->
+            <tr>
+              <td style="width:100%"></td>
+              <td><div style="color:red;font-weight:bold;">${item0}</div></td>
+              <td><div style="color:blue;font-weight:bold;">${item1}</div></td>
+            </tr>
+            <tr>
+              <td style="width:100%">biological</td>
+              <td ${categoryToHighlight === "biological" ? "style=\"color:red;font-weight: bold\"" : ""}><div style="color:red;font-weight:bold;">${item0CategoryDict["biological"]}</div></td>
+              <td><div style="color:blue;font-weight:bold;">${item1CategoryDict["biological"]}</div></td>
+            </tr>
+            <tr>
+              <td style="width:100%">behavioral</td>
+              <td ${categoryToHighlight === "behavioral" ? "style=\"color:red;font-weight: bold\"" : ""}><div style="color:red;font-weight:bold;">${item0CategoryDict["behavioral"]}</div></td>
+              <td><div style="color:blue;font-weight:bold;">${item1CategoryDict["behavioral"]}</div></td>
+            </tr>
+            <tr>
+              <td style="width:100%">social</td>
+              <td ${categoryToHighlight === "social" ? "style=\"color:red;font-weight: bold\"" : ""}><div style="color:red;font-weight:bold;">${item0CategoryDict["social"]}</div></td>
+              <td><div style="color:blue;font-weight:bold;">${item1CategoryDict["social"]}</div></td>
+            </tr>
+            <tr>
+              <td style="width:100%">purpose</td>
+              <td ${categoryToHighlight === "purpose" ? "style=\"color:red;font-weight: bold\"" : ""}><div style="color:red;font-weight:bold;">${item0CategoryDict["purpose"]}</div></td>
+              <td><div style="color:blue;font-weight:bold;">${item1CategoryDict["purpose"]}</div></td>
+            </tr>
+          </table>
+        </div>
+      `;
+    }
+
+    const propertyDisplayPage = {
+      type: jsPsychSurveyHtmlForm,
+      data: {
+        "page_type": "property_display_page",
+      },
+      html: function () {
+        const item0CorrectAttempts = jsPsych.data.get().filter(
+          { "page_type": "categorization_trials", "correct": true, "item": itemPair[0] }).values();
+        const item0CorrectAttempt = item0CorrectAttempts[item0CorrectAttempts.length - 1];
+
+        const item1CorrectAttempts = jsPsych.data.get().filter(
+          { "page_type": "categorization_trials", "correct": true, "item": itemPair[1] }).values();
+        const item1CorrectAttempt = item1CorrectAttempts[item1CorrectAttempts.length - 1];
+
+        let item0CategoryDict = {};
+        item0CategoryDict[item0CorrectAttempt["response"]["group_1"]] = item0CorrectAttempt["properties"][0][0];
+        item0CategoryDict[item0CorrectAttempt["response"]["group_2"]] = item0CorrectAttempt["properties"][1][0];
+        item0CategoryDict[item0CorrectAttempt["response"]["group_3"]] = item0CorrectAttempt["properties"][2][0];
+        item0CategoryDict[item0CorrectAttempt["response"]["group_4"]] = item0CorrectAttempt["properties"][3][0];
+        let item1CategoryDict = {};
+        item1CategoryDict[item1CorrectAttempt["response"]["group_1"]] = item1CorrectAttempt["properties"][0][0];
+        item1CategoryDict[item1CorrectAttempt["response"]["group_2"]] = item1CorrectAttempt["properties"][1][0];
+        item1CategoryDict[item1CorrectAttempt["response"]["group_3"]] = item1CorrectAttempt["properties"][2][0];
+        item1CategoryDict[item1CorrectAttempt["response"]["group_4"]] = item1CorrectAttempt["properties"][3][0];
+
+        console.log(item0CategoryDict);
+        console.log(item1CategoryDict);
+
+        const item0CategoryColor = { "behavioral": "red", "biological": "red", "purpose": "red", "social": "red" };
+        const item1CategoryColor = { "behavioral": "blue", "biological": "blue", "purpose": "blue", "social": "blue" };
+        return `
+        <style>
+        table, tbody, td, th, tr{
+          table-layout: fixed;
+          width: 100%;
+          text-align: relative;
+          border:0.5px solid black;
+          border-spacing:1px;
+          border-color:gray;
+          class:center;
+        }
+        </style>
+
+        <body>
+        <div style="text-align:center;font-size:120%;">
+          Here are the properties of <b style="color:red;">${trialData[itemPair[0]][expCondition]["label"][0]}</b> and <b style="color:blue;">${trialData[itemPair[1]][expCondition]["label"][0]}</b> that you assigned.
+          <br>
+          <br>
+        </div>
+        ${createTable(trialData[itemPair[0]][expCondition]["label"][3], trialData[itemPair[1]][expCondition]["label"][3], item0CategoryDict, item1CategoryDict, "")}
+      </body>`;
+
+
+        //   <!-- <div style="align:center; text-align:center; margin: 0 auto 2em; width:1000px;">
+        //   <table style='border:none;'>
+        //   <tr style='border:none'>
+        //     <td style='border:none'>
+        //       ${createTable(itemPair[0], "red", item0CategoryDict, item0CategoryColor, "")}
+        //     </td>
+        //     <td style='border:none'>
+        //       ${createTable(itemPair[1], "blue", item1CategoryDict, item1CategoryColor, "")}
+        //     </td>
+        //   </tr>
+        //   </table>
+        // </div> -->
+
+      },
+      button_label: 'Continue',
+    };
+    timeline.push(propertyDisplayPage);
+
+
+
+    for (var i = 0; i < 4; i++) {
+      const categoryToReplace = categoryReplacementList[i];
+
+      function createReplacementTable(item0, item1, item0CategoryDict, item1CategoryDict, newThingPropertyDict, categoryToReplace) {
+        let newThingColorDict = {};
+        newThingColorDict["biological"] = "red";
+        newThingColorDict["behavioral"] = "red";
+        newThingColorDict["social"] = "red";
+        newThingColorDict["purpose"] = "red";
+
+        newThingColorDict[categoryToReplace] = "blue";
+
+
+        // if (categoryToReplace == "biological") {
+        //   newThingProtertyDict["biological"] = item1CategoryDict[categoryToReplace];
+        // } else if (categoryToReplace == "behavioral") {
+        //   newThingProtertyDict["behavioral"] = item1CategoryDict[categoryToReplace];
+        // } else if (categoryToReplace == "social") {
+        //   newThingProtertyDict["social"] = item1CategoryDict[categoryToReplace];
+        // } else if (categoryToReplace == "purpose") {
+        //   newThingProtertyDict["purpose"] = item1CategoryDict[categoryToReplace];
+        // }  <td style="width:100%">biological</td> 
+        return `
+      <div style="vertical-align:top;text-align:center; margin: 0 auto 2em; width:1350px;">
+          <table style="width:100%;">
+            <tr>
+              <td><div style="color:black;font-weight:bold;">Category</td>
+              <td><div style="color:red;font-weight:bold;">${item0}</div></td>
+              <td><div style="color:black;font-weight:bold;">Thing after the changes</div></td>
+              <td><div style="color:blue;font-weight:bold;">${item1}</div></td>
+            </tr>
+            <tr>
+              <td ${categoryToReplace === "biological" ? "style=\"color:black;font-weight: bold\"" : ""}>biological</td> 
+              <td ><div style="color:red;font-weight:bold;">${item0CategoryDict["biological"]}</div></td>
+              <td ><div style="color:${newThingColorDict["biological"]};font-weight:bold;">${newThingPropertyDict["biological"]}</div></td>
+              <td><div style="color:blue;font-weight:bold;">${item1CategoryDict["biological"]}</div></td>
+            </tr>
+            <tr>
+              <td ${categoryToReplace === "behavioral" ? "style=\"color:black;font-weight: bold\"" : ""}>behavioral</td> 
+              <td><div style="color:red;font-weight:bold;">${item0CategoryDict["behavioral"]}</div></td>
+              <td ><div style="color:${newThingColorDict["behavioral"]};font-weight:bold;">${newThingPropertyDict["behavioral"]}</div></td>
+              <td><div style="color:blue;font-weight:bold;">${item1CategoryDict["behavioral"]}</div></td>
+            </tr>
+            <tr>
+              <td ${categoryToReplace === "social" ? "style=\"color:black;font-weight: bold\"" : ""}>social</td> 
+              <td><div style="color:red;font-weight:bold;">${item0CategoryDict["social"]}</div></td>
+              <td ><div style="color:${newThingColorDict["social"]};font-weight:bold;">${newThingPropertyDict["social"]}</div></td>
+              <td><div style="color:blue;font-weight:bold;">${item1CategoryDict["social"]}</div></td>
+            </tr>
+            <tr>
+              <td ${categoryToReplace === "purpose" ? "style=\"color:black;font-weight: bold\"" : ""}>purpose</td> 
+              <td><div style="color:red;font-weight:bold;">${item0CategoryDict["purpose"]}</div></td>
+              <td ><div style="color:${newThingColorDict["purpose"]};font-weight:bold;">${newThingPropertyDict["purpose"]}</div></td>
+              <td><div style="color:blue;font-weight:bold;">${item1CategoryDict["purpose"]}</div></td>
+            </tr>
+          </table>
+        </div>
+      `;
+
+      }
+
+      // function createTable(item, itemColor, categoryToProperties, categoryToColors, highlightCategory) {
+      //   return `
+      //   <div style="align:center; text-align:center;width:450px;">
+      //       <table style="width:100%;">
+      //         <tr>
+      //           <td colspan="2"><div style="color:${itemColor};font-weight:bold;">${item}s</div></td>
+      //         </tr>
+      //         <tr>
+      //           <td ${highlightCategory === "biological" ? "style=\"color:black;font-weight: bold\"" : ""}>biological</td>
+      //           <td style="width:80%;">
+      //             <div style="color:${categoryToColors["biological"]};font-weight:bold;">
+      //               ${categoryToProperties["biological"]}
+      //             </div>
+      //           </td>
+      //         </tr>
+      //         <tr>
+      //           <td ${highlightCategory === "behavioral" ? "style=\"color:black;font-weight: bold\"" : ""}>behavioral</td>
+      //           <td>
+      //             <div style="color:${categoryToColors["behavioral"]};font-weight:bold;">
+      //               ${categoryToProperties["behavioral"]}
+      //             </div>
+      //           </td>
+      //         </tr>
+      //         <tr>
+      //           <td ${highlightCategory === "social" ? "style=\"color:black;font-weight: bold\"" : ""}>social</td>
+      //           <td>
+      //             <div style="color:${categoryToColors["social"]};font-weight:bold;">
+      //               ${categoryToProperties["social"]}
+      //             </div>
+      //           </td>
+      //         </tr>
+      //         <tr>
+      //           <td ${highlightCategory === "purpose" ? "style=\"color:black;font-weight: bold\"" : ""}>purpose</td>
+      //           <td>
+      //             <div style="color:${categoryToColors["purpose"]};font-weight:bold;">
+      //               ${categoryToProperties["purpose"]}
+      //             </div>
+      //           </td>
+      //         </tr>
+      //       </table>
+      //     </div>
+      //   `;
+      // }
+
+
+      const propertyReplacementTrialPage = {
+        type: jsPsychSurveyLikert,
+        data: {
+          "page_type": "property_replacement_trials",
+          "pair_id": pairId,
+          "category_replaced": categoryToReplace,
+        },
+        button_label: "continue",
+        preamble: function () {
+          const item0CorrectAttempts = jsPsych.data.get().filter(
+            { "page_type": "categorization_trials", "correct": true, "item": itemPair[0] }).values();
+          const item0CorrectAttempt = item0CorrectAttempts[item0CorrectAttempts.length - 1];
+          const item1CorrectAttempts = jsPsych.data.get().filter(
+            { "page_type": "categorization_trials", "correct": true, "item": itemPair[1] }).values();
+          const item1CorrectAttempt = item1CorrectAttempts[item1CorrectAttempts.length - 1];
+
+          let item0CategoryDict = {};
+          item0CategoryDict[item0CorrectAttempt["response"]["group_1"]] = item0CorrectAttempt["properties"][0][0];
+          item0CategoryDict[item0CorrectAttempt["response"]["group_2"]] = item0CorrectAttempt["properties"][1][0];
+          item0CategoryDict[item0CorrectAttempt["response"]["group_3"]] = item0CorrectAttempt["properties"][2][0];
+          item0CategoryDict[item0CorrectAttempt["response"]["group_4"]] = item0CorrectAttempt["properties"][3][0];
+
+          let item1CategoryDict = {};
+          item1CategoryDict[item1CorrectAttempt["response"]["group_1"]] = item1CorrectAttempt["properties"][0][0];
+          item1CategoryDict[item1CorrectAttempt["response"]["group_2"]] = item1CorrectAttempt["properties"][1][0];
+          item1CategoryDict[item1CorrectAttempt["response"]["group_3"]] = item1CorrectAttempt["properties"][2][0];
+          item1CategoryDict[item1CorrectAttempt["response"]["group_4"]] = item1CorrectAttempt["properties"][3][0];
+
+
+          // let replacedItem0CategoryDict = Object.assign({}, item0CategoryDict);
+
+          let replacedItem0CategoryDict = {};
+          replacedItem0CategoryDict[item0CorrectAttempt["response"]["group_1"]] = item0CorrectAttempt["properties"][0][1];
+          replacedItem0CategoryDict[item0CorrectAttempt["response"]["group_2"]] = item0CorrectAttempt["properties"][1][1];
+          replacedItem0CategoryDict[item0CorrectAttempt["response"]["group_3"]] = item0CorrectAttempt["properties"][2][1];
+          replacedItem0CategoryDict[item0CorrectAttempt["response"]["group_4"]] = item0CorrectAttempt["properties"][3][1];
+
+          let replacedItem1CategoryDict = {};
+          replacedItem1CategoryDict[item1CorrectAttempt["response"]["group_1"]] = item1CorrectAttempt["properties"][0][1];
+          replacedItem1CategoryDict[item1CorrectAttempt["response"]["group_2"]] = item1CorrectAttempt["properties"][1][1];
+          replacedItem1CategoryDict[item1CorrectAttempt["response"]["group_3"]] = item1CorrectAttempt["properties"][2][1];
+          replacedItem1CategoryDict[item1CorrectAttempt["response"]["group_4"]] = item1CorrectAttempt["properties"][3][1];
+
+          console.log(replacedItem0CategoryDict);
+          console.log(replacedItem1CategoryDict);
+
+          let replacedItem0CategoryDictCopy = Object.assign({}, replacedItem0CategoryDict);
+
+          replacedItem0CategoryDict[categoryToReplace] = replacedItem1CategoryDict[categoryToReplace];
+
+          let newThingPropertyDict = replacedItem0CategoryDict;
+
+          const item0CategoryColor = { "behavioral": "red", "biological": "red", "purpose": "red", "social": "red" };
+          const item1CategoryColor = { "behavioral": "blue", "biological": "blue", "purpose": "blue", "social": "blue" };
+          let replacedItem0CategoryColor = { "behavioral": "red", "biological": "red", "purpose": "red", "social": "red" };
+          replacedItem0CategoryColor[categoryToReplace] = "blue";
+
+
+          console.log(trialData[itemPair[0]][expCondition]);
+          console.log(trialData[itemPair[1]][expCondition]);
+          console.log(trialData[itemPair[0]][expCondition]["pic"]);
+          console.log(trialData[itemPair[1]][expCondition]["pic"]);
+          let tableCaption = `<div style="text-align:center;font-size:120%;">
+          One day, toxic waste is dumped into a nearby river and a <b style="color:red;">${itemPair[0]}</b> is exposed to it. As a result, it underwent some changes. <br> 
+          Its <b>${categoryToReplace}</b> properties changed so that now it <b>NO LONGER</b> <i style="color:red;">${replacedItem0CategoryDictCopy[categoryToReplace]}</i>.<br>
+          Instead, it <i style="color:blue;">${newThingPropertyDict[categoryToReplace]}</i> like a <b style="color:blue;">${itemPair[1]}</b>.
+          <br>
+          <br>
+          <br>
+          <br>
+        </div>
+        <div style="float:center;">
+          &nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <img src='${trialData[itemPair[0]][expCondition]["pic"]}'width="160"''height="110"'</img>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <img src="images/question_object.png" width="200" height="160"></img>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <img src='${trialData[itemPair[1]][expCondition]["pic"]}'width="160"''height="110"'</img>
+        </div>`
+
+
+          if (categoryToReplace === "purpose") {
+            tableCaption = `<div style="text-align:center;font-size:120%;">
+          One day, toxic waste is dumped into a nearby river and a <b style="color:red;">${itemPair[0]}</b> is exposed to it. As a result, it underwent some changes. <br> 
+          Its <b>${categoryToReplace}</b> changed so that now it <b>NO LONGER</b> <i style="color:red;">${replacedItem0CategoryDictCopy[categoryToReplace]}</i>.<br>
+          Instead, it <i style="color:blue;">${newThingPropertyDict[categoryToReplace]}</i> like a <b style="color:blue;">${itemPair[1]}</b>.
+          <br>
+          <br>
+          <br>
+          <br>
+        </div>
+        <div style="float:center;">
+          &nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <img src='${trialData[itemPair[0]][expCondition]["pic"]}'width="160"''height="110"'</img>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <img src="images/question_object.png" width="200" height="160"></img>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <img src='${trialData[itemPair[1]][expCondition]["pic"]}'width="160"''height="110"'</img>
+        </div>`;
+          };
+          return `
+        <style>
+        table, tbody, td, th, tr{
+          table-layout: fixed;
+          width: 100%;
+          text-align: relative;
+          border:0.5px solid black;
+          border-spacing:1px;
+          border-color:gray;
+          class:center;
+        }
+        </style>
+        <body>
+
+       ${tableCaption}
+       ${createReplacementTable(trialData[itemPair[0]][expCondition]["label"][3], trialData[itemPair[1]][expCondition]["label"][3], item0CategoryDict, item1CategoryDict, newThingPropertyDict, categoryToReplace)}
+      </body>`;
+        },
+        questions: [
+          {
+            prompt: `<p>To what extent do you think the <b>thing after the changes</b> is a <b style="color:red;">${itemPair[0]}</b> or a <b style="color:blue;">${itemPair[1]}?</b></p>`,
+            labels: [`<div style="font-size:16px;">definitely a <b style="color:red;">${itemPair[0]}</b></div>`, ``, ``, `<div style="font-size:16px;">unsure`, ``, ``, `<div style="font-size: 16px;">definitely a <b style="color:blue;">${itemPair[1]}</b></div>`],
+          }],
+        scale_width: 650,
+      };
+      timeline.push(propertyReplacementTrialPage);
+    };
+  };
+
+
+  // comprehension check
+  var comprehension = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<p>Is the following statement true or false?<br><br>In this experiment, you were told that the new things you encountered <br> were transformed by an environmental event.</p>',
+    choices: ['True', 'False'],
+    data: {
+      "page_type": "comprehension_check",
+    },
+  };
+
+  timeline.push(comprehension);
+
+
+  // demographics
+
+  timeline.push(demographic_form);
+
+
+  jsPsych.run(timeline);
+
+</script>
+
+</html>
+
+
+
+
+
+
+<!-- <table style='border:none'>
+        <tr style='border:none'>
+          <td style='border:none'>
+            ${createTable(itemPair[0], "red", item0CategoryDict, item0CategoryColor, categoryToReplace)}
+          </td>
+          <td style='border:none'>
+            ${createTable("Things after the changes", "black", replacedItem0CategoryDict, replacedItem0CategoryColor, categoryToReplace)}
+          </td>
+          <td style='border:none'>
+            ${createTable(itemPair[1], "blue", item1CategoryDict, item1CategoryColor, categoryToReplace)}
+          </td>
+        </tr>
+       </table>
+        -->
+<!-- 
+          // <style>
+            // .vl {
+            //   border-left: 3px dotted gray;
+            //   height: 60px;
+            //   position: absolute;
+            //   left: 50%;
+            //   margin-left: -3px;
+            //   margin-bottom: -1px;
+            //  }
+            // </style>
+            // <div class="vl"></div> -->

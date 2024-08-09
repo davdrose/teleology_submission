@@ -1,0 +1,81 @@
+model,property,category,question,answer,probability
+roberta_large,purifies water,purpose,An animal that ,fish,0.12147093564271927
+roberta_large,purifies water,purpose,An animal that ,dolphin,0.07893718034029007
+roberta_large,purifies water,purpose,An animal that ,cow,0.06627731770277023
+roberta_large,purifies water,purpose,An animal that ,turtle,0.049265146255493164
+roberta_large,purifies water,purpose,An animal that ,frog,0.039268311113119125
+roberta_large,enables decomposition,purpose,An animal that ,parasite,0.085699163377285
+roberta_large,enables decomposition,purpose,An animal that ,predator,0.060734812170267105
+roberta_large,enables decomposition,purpose,An animal that ,fungus,0.05490387603640556
+roberta_large,enables decomposition,purpose,An animal that ,dinosaur,0.03620407357811928
+roberta_large,enables decomposition,purpose,An animal that ,worm,0.031461723148822784
+roberta_large,makes honey,purpose,An animal that ,bee,0.7082166075706482
+roberta_large,makes honey,purpose,An animal that ,cow,0.11860843002796173
+roberta_large,makes honey,purpose,An animal that ,hog,0.02539151720702648
+roberta_large,makes honey,purpose,An animal that ,honey,0.012495038099586964
+roberta_large,makes honey,purpose,An animal that ,goat,0.01154927909374237
+roberta_large,aerates soil,purpose,An animal that ,cow,0.14445710182189941
+roberta_large,aerates soil,purpose,An animal that ,farmer,0.055321354418992996
+roberta_large,aerates soil,purpose,An animal that ,worm,0.04880006983876228
+roberta_large,aerates soil,purpose,An animal that ,weed,0.04298040270805359
+roberta_large,aerates soil,purpose,An animal that ,goose,0.03825104609131813
+roberta_large,pointy ears,biological,An animal that ,cat,0.11630983650684357
+roberta_large,pointy ears,biological,An animal that ,dog,0.10388786345720291
+roberta_large,pointy ears,biological,An animal that ,fox,0.09352962672710419
+roberta_large,pointy ears,biological,An animal that ,wolf,0.04506831616163254
+roberta_large,pointy ears,biological,An animal that ,mammal,0.037064265459775925
+roberta_large,long legs,biological,An animal that ,horse,0.14751321077346802
+roberta_large,long legs,biological,An animal that ,mammal,0.0793355330824852
+roberta_large,long legs,biological,An animal that ,dinosaur,0.06313633173704147
+roberta_large,long legs,biological,An animal that ,bird,0.06310021132230759
+roberta_large,long legs,biological,An animal that ,frog,0.05768398940563202
+roberta_large,hair,biological,An animal that ,mammal,0.4743262529373169
+roberta_large,hair,biological,An animal that ,human,0.06923975050449371
+roberta_large,hair,biological,An animal that ,dog,0.05335452780127525
+roberta_large,hair,biological,An animal that ,cat,0.042385034263134
+roberta_large,hair,biological,An animal that ,man,0.038665540516376495
+roberta_large,warm blooded,biological,An animal that ,mammal,0.10558325052261353
+roberta_large,warm blooded,biological,An animal that ,wolf,0.07427802681922913
+roberta_large,warm blooded,biological,An animal that ,cow,0.06211467087268829
+roberta_large,warm blooded,biological,An animal that ,bear,0.056356191635131836
+roberta_large,warm blooded,biological,An animal that ,horse,0.04700767621397972
+roberta_large,jump,behavior,An animal that ,bird,0.14967918395996094
+roberta_large,jump,behavior,An animal that ,jumper,0.12782536447048187
+roberta_large,jump,behavior,An animal that ,runner,0.07508762925863266
+roberta_large,jump,behavior,An animal that ,dog,0.06601809710264206
+roberta_large,jump,behavior,An animal that ,frog,0.06467429548501968
+roberta_large,swim,behavior,An animal that ,fish,0.6808987855911255
+roberta_large,swim,behavior,An animal that ,dolphin,0.09568275511264801
+roberta_large,swim,behavior,An animal that ,shark,0.05679275095462799
+roberta_large,swim,behavior,An animal that ,whale,0.02279489114880562
+roberta_large,swim,behavior,An animal that ,bird,0.02103699930012226
+roberta_large,chew,behavior,An animal that ,dog,0.2681672275066376
+roberta_large,chew,behavior,An animal that ,mammal,0.09157264977693558
+roberta_large,chew,behavior,An animal that ,pig,0.050196241587400436
+roberta_large,chew,behavior,An animal that ,frog,0.045327942818403244
+roberta_large,chew,behavior,An animal that ,snake,0.0358421728014946
+roberta_large,run,behavior,An animal that ,runner,0.3191034495830536
+roberta_large,run,behavior,An animal that ,dog,0.0987718403339386
+roberta_large,run,behavior,An animal that ,horse,0.04569043591618538
+roberta_large,run,behavior,An animal that ,human,0.045004554092884064
+roberta_large,run,behavior,An animal that ,bird,0.04202830046415329
+roberta_large,pair bond,social,An animal that ,dog,0.11351661384105682
+roberta_large,pair bond,social,An animal that ,cat,0.050942562520504
+roberta_large,pair bond,social,An animal that ,mammal,0.03984838351607323
+roberta_large,pair bond,social,An animal that ,snake,0.0337059311568737
+roberta_large,pair bond,social,An animal that ,wolf,0.03223981335759163
+roberta_large,follow dominant group member,social,An animal that ,follower,0.6106605529785156
+roberta_large,follow dominant group member,social,An animal that ,herd,0.17349039018154144
+roberta_large,follow dominant group member,social,An animal that ,leader,0.05733099952340126
+roberta_large,follow dominant group member,social,An animal that ,slave,0.010703728534281254
+roberta_large,follow dominant group member,social,An animal that ,dog,0.009088503196835518
+roberta_large,cooperates with group members,social,An animal that ,leader,0.15048478543758392
+roberta_large,cooperates with group members,social,An animal that ,cooperative,0.07052057236433029
+roberta_large,cooperates with group members,social,An animal that ,herd,0.05882198363542557
+roberta_large,cooperates with group members,social,An animal that ,follower,0.05260814353823662
+roberta_large,cooperates with group members,social,An animal that ,group,0.05077624320983887
+roberta_large,share food with group members,social,An animal that ,pack,0.11925670504570007
+roberta_large,share food with group members,social,An animal that ,vegetarian,0.07671177387237549
+roberta_large,share food with group members,social,An animal that ,herd,0.06889264285564423
+roberta_large,share food with group members,social,An animal that ,family,0.05239376798272133
+roberta_large,share food with group members,social,An animal that ,cooperative,0.05195411667227745

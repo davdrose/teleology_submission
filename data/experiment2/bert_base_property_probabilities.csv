@@ -1,0 +1,81 @@
+property,category,question,answer,probability,model
+purifies water,purpose,An animal that ,fish,0.153,bert_base
+purifies water,purpose,An animal that ,dog,0.047,bert_base
+purifies water,purpose,An animal that ,cow,0.043,bert_base
+purifies water,purpose,An animal that ,plant,0.04,bert_base
+purifies water,purpose,An animal that ,horse,0.026,bert_base
+enables decomposition,purpose,An animal that ,bacterium,0.05,bert_base
+enables decomposition,purpose,An animal that ,predator,0.045,bert_base
+enables decomposition,purpose,An animal that ,tree,0.031,bert_base
+enables decomposition,purpose,An animal that ,mammal,0.029,bert_base
+enables decomposition,purpose,An animal that ,human,0.026,bert_base
+makes honey,purpose,An animal that ,bee,0.419,bert_base
+makes honey,purpose,An animal that ,honey,0.05,bert_base
+makes honey,purpose,An animal that ,plant,0.027,bert_base
+makes honey,purpose,An animal that ,witch,0.027,bert_base
+makes honey,purpose,An animal that ,bird,0.016,bert_base
+aerates soil,purpose,An animal that ,plant,0.073,bert_base
+aerates soil,purpose,An animal that ,bacterium,0.04,bert_base
+aerates soil,purpose,An animal that ,weed,0.028,bert_base
+aerates soil,purpose,An animal that ,worm,0.027,bert_base
+aerates soil,purpose,An animal that ,cow,0.022,bert_base
+pointy ears,biological,An animal that ,dog,0.266,bert_base
+pointy ears,biological,An animal that ,cat,0.064,bert_base
+pointy ears,biological,An animal that ,horse,0.058,bert_base
+pointy ears,biological,An animal that ,rabbit,0.04,bert_base
+pointy ears,biological,An animal that ,fox,0.037,bert_base
+long legs,biological,An animal that ,horse,0.16,bert_base
+long legs,biological,An animal that ,cat,0.055,bert_base
+long legs,biological,An animal that ,spider,0.053,bert_base
+long legs,biological,An animal that ,dog,0.033,bert_base
+long legs,biological,An animal that ,monkey,0.025,bert_base
+hair,biological,An animal that ,dog,0.147,bert_base
+hair,biological,An animal that ,horse,0.059,bert_base
+hair,biological,An animal that ,cat,0.044,bert_base
+hair,biological,An animal that ,snake,0.037,bert_base
+hair,biological,An animal that ,man,0.033,bert_base
+warm blooded,biological,An animal that ,dog,0.113,bert_base
+warm blooded,biological,An animal that ,horse,0.103,bert_base
+warm blooded,biological,An animal that ,wolf,0.082,bert_base
+warm blooded,biological,An animal that ,vegetarian,0.069,bert_base
+warm blooded,biological,An animal that ,human,0.033,bert_base
+jump,behavior,An animal that ,horse,0.167,bert_base
+jump,behavior,An animal that ,human,0.045,bert_base
+jump,behavior,An animal that ,monkey,0.045,bert_base
+jump,behavior,An animal that ,leap,0.038,bert_base
+jump,behavior,An animal that ,jump,0.037,bert_base
+swim,behavior,An animal that ,fish,0.258,bert_base
+swim,behavior,An animal that ,shark,0.108,bert_base
+swim,behavior,An animal that ,dolphin,0.094,bert_base
+swim,behavior,An animal that ,swimmer,0.075,bert_base
+swim,behavior,An animal that ,dog,0.034,bert_base
+chew,behavior,An animal that ,dog,0.091,bert_base
+chew,behavior,An animal that ,predator,0.059,bert_base
+chew,behavior,An animal that ,pig,0.037,bert_base
+chew,behavior,An animal that ,cat,0.035,bert_base
+chew,behavior,An animal that ,human,0.035,bert_base
+run,behavior,An animal that ,dog,0.153,bert_base
+run,behavior,An animal that ,runner,0.119,bert_base
+run,behavior,An animal that ,horse,0.085,bert_base
+run,behavior,An animal that ,human,0.057,bert_base
+run,behavior,An animal that ,hunter,0.035,bert_base
+pair bond,social,An animal that ,wolf,0.108,bert_base
+pair bond,social,An animal that ,monkey,0.069,bert_base
+pair bond,social,An animal that ,dog,0.064,bert_base
+pair bond,social,An animal that ,cat,0.059,bert_base
+pair bond,social,An animal that ,predator,0.039,bert_base
+follow dominant group member,social,An animal that ,dog,0.087,bert_base
+follow dominant group member,social,An animal that ,wolf,0.053,bert_base
+follow dominant group member,social,An animal that ,predator,0.033,bert_base
+follow dominant group member,social,An animal that ,cat,0.031,bert_base
+follow dominant group member,social,An animal that ,leader,0.03,bert_base
+cooperates with group members,social,An animal that ,leader,0.089,bert_base
+cooperates with group members,social,An animal that ,dog,0.055,bert_base
+cooperates with group members,social,An animal that ,predator,0.045,bert_base
+cooperates with group members,social,An animal that ,bully,0.029,bert_base
+cooperates with group members,social,An animal that ,member,0.024,bert_base
+share food with group members,social,An animal that ,vegetarian,0.06,bert_base
+share food with group members,social,An animal that ,dog,0.059,bert_base
+share food with group members,social,An animal that ,member,0.038,bert_base
+share food with group members,social,An animal that ,leader,0.038,bert_base
+share food with group members,social,An animal that ,predator,0.028,bert_base
