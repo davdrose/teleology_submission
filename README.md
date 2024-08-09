@@ -63,11 +63,11 @@ What kinds of properties matter most in categorization? Does it matter whether p
   - `experiment3` contains `experiment3.csv` which includes the trial data for experiment 3 while `experiment3_demographics.csv` contains the demographic data.
   - `experiment4` contains `experiment4.csv` which includes the trial data for experiment 3 while `experiment4_demographics.csv` contains the demographic data.
 - `docs/` contains all the experiment code for `experiment2`, `experiment3` and `experiment4`. You can preview the experiments below:
-    - Experiment 2 - [Generic condition](https://cicl-stanford.github.io/teleological_properties/experiment2/index.html?condition=1),
-      [Specific condition](https://cicl-stanford.github.io/teleological_properties/experiment2/index.html?condition=2)
-    - Experiment 3 - [Generic condition](https://cicl-stanford.github.io/teleological_properties/experiment3/index.html?condition=1),
-      [Specific condition](https://cicl-stanford.github.io/teleological_properties/experiment3/index.html?condition=2)
-    - Experiment 4 - [Generic condition](https://cicl-stanford.github.io/teleological_properties/experiment4/index.html?condition=1),
-      [Specific condition](https://cicl-stanford.github.io/teleological_properties/experiment4/index.html?condition=2)
+    - Experiment 2 - [Generic condition](https://davdrose.github.io/teleology_submission/experiment2/index.html?condition=1),
+      [Specific condition](https://davdrose.github.io/teleology_submission/experiment2/index.html?condition=2)
+    - Experiment 3 - [Generic condition](https://davdrose.github.io/teleology_submission/experiment3/index.html?condition=1),
+      [Specific condition](https://davdrose.github.io/teleology_submission/experiment3/index.html?condition=2)
+    - Experiment 4 - [Generic condition](https://davdrose.github.io/teleology_submission/experiment4/index.html?condition=1),
+      [Specific condition](https://davdrose.github.io/teleology_submission/experiment4/index.html?condition=2)
 - `figures/` contains all the figures from the paper (generated using the script in `code/R/`). 
 
