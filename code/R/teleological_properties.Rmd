@@ -368,7 +368,7 @@ df.plot = df.exp2 %>%
    mutate(participant = rep(1:100, each = 2)) %>% 
           rename(condition = expCondition) %>% 
   relocate(participant) %>% 
-   select(-c("item_0", "item_1", "error")) %>% 
+  select(-c("item_0", "item_1", "error")) %>% 
   pivot_longer(starts_with("item"),
                names_to = "tmp",
                values_to = "value") %>% 
