@@ -53,9 +53,9 @@ What kinds of properties matter most in categorization? Does it matter whether p
 - `code/` contains all the code for the experiments, analyzing data and generating figures.
   - `experiments` contains code for each experiment that was run. Pre-registrations for all experiments are linked below.
     	- `experiment1` ([pre-registration](https://osf.io/4dux6/?view_only=ace54f88f0434856b9ac02cfe6df651b)) was run in psiturk 
-	- `experiment2` ([pre-registration](https://osf.io/a92nj/?view_only=d64cc77d0de94414b3a20a6abad29724)), `experiment3` ([pre-registration](https://osf.io/zdegq/?view_only=4d8c2abdfc4e4e33a8de287fa627b6b2)) and `experiment4` ([pre-registration](https://osf.io/2a3x5/?view_only=2da045cac79b4b648fae27b3e3f63039)) were run in jsPsych. You can view each experiment locally by downloading this repository and following the instructions in the README.md that can be found in the experiments folder.
+	- `experiment2` ([pre-registration](https://osf.io/a92nj/?view_only=d64cc77d0de94414b3a20a6abad29724)), `experiment3` ([pre-registration](https://osf.io/zdegq/?view_only=4d8c2abdfc4e4e33a8de287fa627b6b2)) and `experiment4` ([pre-registration](https://osf.io/2a3x5/?view_only=2da045cac79b4b648fae27b3e3f63039)) were run in jsPsych. You can view each experiment locally by downloading this repository and following the instructions in the README.md that can be found in the experiments folder. To download, all materials, click `download repository` above in the toolbar.
   - `python` contains scripts that were used to get the probabilities of sentence completions for properties used in experiment 2.
-  - `R` contains the analysis scripts that were used to analyze data and generate figures
+  - `R` contains the analysis scripts that were used to analyze data and generate figures. To view the rendered code, click `website` above in the toolbar.
 - `data/` contains anonymized data from all experiments:
   - `experiment1` contains `experiment1.db` which includes trial and demographic data. 
   - `experiment2` contains `experiment2.csv` which includes the trial data and `experiment2_demographics.csv` which includes demographic data. The remaining files are for getting the probabilities of sentence completions from large language models for the properties used in experiment 2. 
