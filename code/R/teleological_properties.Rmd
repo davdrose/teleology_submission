@@ -365,8 +365,8 @@ ggsave(width = 8, height = 5, "../../figures/experiment2/exp2_property_by_condit
 
 # create dataframe to get proportion of properties that were categorized as expected 
 df.plot = df.exp2 %>%
-   mutate(participant = rep(1:100, each = 2)) %>% 
-          rename(condition = expCondition) %>% 
+  mutate(participant = rep(1:100, each = 2)) %>% 
+  rename(condition = expCondition) %>% 
   relocate(participant) %>% 
   select(-c("item_0", "item_1", "error")) %>% 
   pivot_longer(starts_with("item"),
@@ -813,8 +813,8 @@ ggsave(width = 8, height = 5, "../../figures/experiment3/exp3_property_by_condit
 
 # create dataframe to get proportion of properties that were categorized as expected 
 df.plot = df.exp3 %>%
-   mutate(participant = rep(1:100, each = 2)) %>% 
-          rename(condition = expCondition) %>% 
+  mutate(participant = rep(1:100, each = 2)) %>% 
+  rename(condition = expCondition) %>% 
   relocate(participant) %>% 
   select(-c("item_0", "item_1", "error")) %>% 
   pivot_longer(starts_with("item"),
@@ -1012,8 +1012,8 @@ ggsave(width = 8, height = 5, "../../figures/experiment4/exp4_property_by_condit
 
 # create dataframe to get proportion of properties that were categorized as expected 
 df.plot = df.exp4 %>%
-   mutate(participant = rep(1:100, each = 2)) %>% 
-          rename(condition = expCondition) %>% 
+  mutate(participant = rep(1:100, each = 2)) %>% 
+  rename(condition = expCondition) %>% 
   relocate(participant) %>% 
   select(-c("item_0", "item_1", "error")) %>% 
   pivot_longer(starts_with("item"),
