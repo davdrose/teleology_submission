@@ -63,8 +63,8 @@ dbDisconnect(con)
 df.exp1.data = df.exp1.data %>%
   filter(status %in% 3:5, 
          codeversion == "experiment1")
-         # !str_detect(mode, "debug"))
-         
+# !str_detect(mode, "debug"))
+
 
 # demographic information 
 df.exp1.demographics = df.exp1.data$datastring %>% 
@@ -248,14 +248,14 @@ df.exp2 = read_csv("../../data/experiment2/experiment2.csv")
 # catgeorization judgment dataframe
 df.exp2.long = df.exp2 %>%
   rename(condition = expCondition) %>%
-   mutate(participant = rep(1:100, each = 2)) %>% 
+  mutate(participant = rep(1:100, each = 2)) %>% 
   select(participant, comprehension_check, condition, response_behavioral: response_social) %>% 
   pivot_longer(cols = response_behavioral:response_social,
                names_to = "property",
                values_to = "response") %>% 
   mutate(property = str_remove_all(property, "response_"),
-          property = str_replace_all(property, "behavioral", "behavior"),
-          property = str_replace_all(property, "biological", "biology"),
+         property = str_replace_all(property, "behavioral", "behavior"),
+         property = str_replace_all(property, "biological", "biology"),
          response = recode(response, `0` = 1, `1` = 2, `2` = 3, `3` = 4, `4` = 5, `5` = 6, `6` = 7),
          condition = recode(condition, "non_generic" = "specific"),
          study = rep("transformation")) 
@@ -341,18 +341,18 @@ ggplot(data = df.exp2.long,
   coord_flip() +
   annotation_custom(raster_midpoint_creature, xmin=4.35, xmax=5.3, ymin=-Inf, ymax=Inf) +
   expand_limits(x = c(-Inf, 5.3)) +
-scale_y_continuous(breaks = 1:7,
-                   labels = c(
-    "1" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/left_creature.png' width='35' height='30'>",
-    "2" = "2",
-    "3" = "3",
-    "4" = "unsure",
-    "5" = "5",
-    "6" = "6",
-    "7" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/right_creature.png' width='35' height='30'>"
-  )) +
+  scale_y_continuous(breaks = 1:7,
+                     labels = c(
+                       "1" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/left_creature.png' width='35' height='30'>",
+                       "2" = "2",
+                       "3" = "3",
+                       "4" = "unsure",
+                       "5" = "5",
+                       "6" = "6",
+                       "7" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/right_creature.png' width='35' height='30'>"
+                     )) +
   theme(axis.text.x = element_markdown())
- 
+
 ggsave(width = 8, height = 5, "../../figures/experiment2/exp2_property_by_condition_means.pdf")
 
 ```
@@ -392,21 +392,21 @@ df.plot = df.exp2 %>%
   count(.drop = F)  %>% 
   mutate(proportion = n/100) %>% 
   mutate(response = str_replace_all(response, "behavioral", "behavior"),
-        response = str_replace_all(response, "biological", "biology")) %>% 
+         response = str_replace_all(response, "biological", "biology")) %>% 
   ungroup() %>% 
   add_row(expected = "social", response = "purpose", item = "just for plotting", n = 0 , proportion = 0.00)
 
 ggplot(data = df.plot) +
-    geom_tile(aes(x = expected, 
-                    y = response, 
-                    fill = proportion,
-                    group = proportion),
-              color = "black") +
-scale_fill_gradient(low = "white", high = "black", limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
+  geom_tile(aes(x = expected, 
+                y = response, 
+                fill = proportion,
+                group = proportion),
+                color = "black") +
+  scale_fill_gradient(low = "white", high = "black", limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
   theme(legend.title = element_blank(),
         text = element_text(size = 20)) +
-   xlab("Expected Categorization") +
-   ylab("Actual Categorization")
+  xlab("Expected Categorization") +
+  ylab("Actual Categorization")
 
 ggsave(filename = "../../figures/experiment2/exp2_heat_map.pdf",
        height = 5,
@@ -421,10 +421,10 @@ ggsave(filename = "../../figures/experiment2/exp2_heat_map.pdf",
 
 # property categorization and categorization judgment dataframe
 df.exp2.property_categorization = df.exp2 %>%
-   mutate(participant = rep(1:100, each = 2)) %>% 
-          rename(condition = expCondition) %>% 
+  mutate(participant = rep(1:100, each = 2)) %>% 
+  rename(condition = expCondition) %>% 
   relocate(participant) %>% 
-   select(-c("item_0", "item_1", "error")) %>% 
+  select(-c("item_0", "item_1", "error")) %>% 
   pivot_longer(starts_with("item"),
                names_to = "tmp",
                values_to = "value") %>% 
@@ -509,7 +509,7 @@ ggplot(data = df.each_property,
                size = .9) + 
   scale_fill_brewer(palette = "Set1") + 
   scale_color_brewer(palette = "Set1") + 
- scale_y_continuous(breaks = 1:7) +
+  scale_y_continuous(breaks = 1:7) +
   theme(plot.title = element_text(hjust = 0.5,
                                   size = 18,
                                   face = "bold"),
@@ -704,14 +704,14 @@ df.exp3 = read_csv("../../data/experiment3/experiment3.csv")
 # catgeorization judgment dataframe
 df.exp3.long = df.exp3 %>%
   rename(condition = expCondition) %>%
-   mutate(participant = rep(1:100, each = 2)) %>% 
+  mutate(participant = rep(1:100, each = 2)) %>% 
   select(participant, comprehension_check, condition, response_behavioral: response_social) %>% 
   pivot_longer(cols = response_behavioral:response_social,
                names_to = "property",
                values_to = "response") %>% 
   mutate(property = str_remove_all(property, "response_"),
          property = str_replace_all(property, "behavioral", "behavior"),
-          property = str_replace_all(property, "biological", "biology"),
+         property = str_replace_all(property, "biological", "biology"),
          response = recode(response, `0` = 1, `1` = 2, `2` = 3, `3` = 4, `4` = 5, `5` = 6, `6` = 7),
          condition = recode(condition, "non_generic" = "specific"),
          study = rep("induction")) 
@@ -791,16 +791,16 @@ ggplot(data = df.exp3.long,
   coord_flip() +
   annotation_custom(raster_midpoint_creature, xmin=4.35, xmax=5.3, ymin=-Inf, ymax=Inf) +
   expand_limits(x = c(-Inf, 5.3)) +
-scale_y_continuous(breaks = 1:7,
-                   labels = c(
-    "1" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/left_creature.png' width='35' height='30'>",
-    "2" = "2",
-    "3" = "3",
-    "4" = "unsure",
-    "5" = "5",
-    "6" = "6",
-    "7" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/right_creature.png' width='35' height='30'>"
-  )) +
+  scale_y_continuous(breaks = 1:7,
+                     labels = c(
+                       "1" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/left_creature.png' width='35' height='30'>",
+                       "2" = "2",
+                       "3" = "3",
+                       "4" = "unsure",
+                       "5" = "5",
+                       "6" = "6",
+                       "7" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/right_creature.png' width='35' height='30'>"
+                     )) +
   theme(axis.text.x = element_markdown())
 
 ggsave(width = 8, height = 5, "../../figures/experiment3/exp3_property_by_condition_means.pdf")
@@ -816,7 +816,7 @@ df.plot = df.exp3 %>%
    mutate(participant = rep(1:100, each = 2)) %>% 
           rename(condition = expCondition) %>% 
   relocate(participant) %>% 
-   select(-c("item_0", "item_1", "error")) %>% 
+  select(-c("item_0", "item_1", "error")) %>% 
   pivot_longer(starts_with("item"),
                names_to = "tmp",
                values_to = "value") %>% 
@@ -903,14 +903,14 @@ df.exp4 = read_csv("../../data/experiment4/experiment4.csv")
 # catgeorization judgment dataframe
 df.exp4.long = df.exp4 %>%
   rename(condition = expCondition) %>%
-   mutate(participant = rep(1:100, each = 2)) %>% 
+  mutate(participant = rep(1:100, each = 2)) %>% 
   select(participant, comprehension_check, condition, offspring_behavioral: offspring_social) %>% 
   pivot_longer(cols = offspring_behavioral:offspring_social,
                names_to = "property",
                values_to = "response") %>% 
   mutate(property = str_remove_all(property, "offspring_"),
          property = str_replace_all(property, "behavioral", "behavior"),
-          property = str_replace_all(property, "biological", "biology"),
+         property = str_replace_all(property, "biological", "biology"),
          response = recode(response, `0` = 1, `1` = 2, `2` = 3, `3` = 4, `4` = 5, `5` = 6, `6` = 7),
          condition = recode(condition, "non_generic" = "specific"),
          study = rep("offspring")) 
@@ -990,16 +990,16 @@ ggplot(data = df.exp4.long,
   coord_flip() +
   annotation_custom(raster_midpoint_creature, xmin=4.35, xmax=5.3, ymin=-Inf, ymax=Inf) +
   expand_limits(x = c(-Inf, 5.3)) +
-scale_y_continuous(breaks = 1:7,
-                   labels = c(
-    "1" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/left_creature.png' width='35' height='30'>",
-    "2" = "2",
-    "3" = "3",
-    "4" = "unsure",
-    "5" = "5",
-    "6" = "6",
-    "7" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/right_creature.png' width='35' height='30'>"
-  )) +
+  scale_y_continuous(breaks = 1:7,
+                     labels = c(
+                       "1" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/left_creature.png' width='35' height='30'>",
+                       "2" = "2",
+                       "3" = "3",
+                       "4" = "unsure",
+                       "5" = "5",
+                       "6" = "6",
+                       "7" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleological_properties/master/figures/plot_additions/right_creature.png' width='35' height='30'>"
+                     )) +
   theme(axis.text.x = element_markdown())
 
 ggsave(width = 8, height = 5, "../../figures/experiment4/exp4_property_by_condition_means.pdf")
@@ -1015,7 +1015,7 @@ df.plot = df.exp4 %>%
    mutate(participant = rep(1:100, each = 2)) %>% 
           rename(condition = expCondition) %>% 
   relocate(participant) %>% 
-   select(-c("item_0", "item_1", "error")) %>% 
+  select(-c("item_0", "item_1", "error")) %>% 
   pivot_longer(starts_with("item"),
                names_to = "tmp",
                values_to = "value") %>% 
