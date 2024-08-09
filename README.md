@@ -1,6 +1,6 @@
 # Teleological properties
 
-This repository contains the experiments, data, analyses, and figures for the paper "Teleological properties matter more for categorization," 
+This repository contains the experiments, data, analyses, and figures for the paper "Teleological properties matter more for categorization" 
 
 
 __Contents__:
