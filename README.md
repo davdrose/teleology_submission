@@ -51,9 +51,9 @@ What kinds of properties matter most in categorization? Does it matter whether p
 ```
 
 - `code/` contains all the code for the experiments, analyzing data and generating figures.
-  - `experiments` contains code for each experiment that was run. Pre-registrations for all experiments may be accessed via the Open Science Framework [here](https://osf.io/kh3xa/)
-  	- `experiment1` ([pre-registration](https://osf.io/4dux6)) was run in psiturk 
-	- `experiment2` ([pre-registration](https://osf.io/a92nj)), `experiment3` ([pre-registration](https://osf.io/zdegq)) `experiment4` ([pre-registration](https://osf.io/2a3x5))and were run in jsPsych. These are copied in `docs` below where they can be rendered in your browser.
+  - `experiments` contains code for each experiment that was run. Pre-registrations for all experiments are linked below.
+    	- `experiment1` ([pre-registration](https://osf.io/4dux6/?view_only=ace54f88f0434856b9ac02cfe6df651b)) was run in psiturk 
+	- `experiment2` ([pre-registration](https://osf.io/a92nj/?view_only=d64cc77d0de94414b3a20a6abad29724)), `experiment3` ([pre-registration](https://osf.io/zdegq/?view_only=4d8c2abdfc4e4e33a8de287fa627b6b2)) `experiment4` ([pre-registration](https://osf.io/2a3x5/?view_only=2da045cac79b4b648fae27b3e3f63039))and were run in jsPsych. These are copied in `docs` below where they can be rendered in your browser.
   - `python` contains scripts that were used to get the probabilities of sentence completions for properties used in experiment 2.
   - `R` contains the analysis scripts that were used to analyze data and generate figures
      (view a rendered file [here](https://cicl-stanford.github.io/teleological_properties/)).
